@@ -10,6 +10,14 @@ var (
 	semverRe = regexp.MustCompile(`^v([0-9]+)\.([0-9]+)\.([0-9])$`)
 )
 
+func New(major, minor, patch int) Tag {
+	return Tag{
+		Major: major,
+		Minor: minor,
+		Patch: patch,
+	}
+}
+
 func Parse(s string) (Tag, bool) {
 	groups := semverRe.FindStringSubmatch(s)
 	if len(groups) != 4 {

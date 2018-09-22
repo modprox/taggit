@@ -2,6 +2,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 
@@ -18,6 +19,8 @@ func main() {
 
 	gitCmd := git.New("git")
 
+	var output bytes.Buffer
+
 	tags, err := git.ListTags(gitCmd)
 	if err != nil {
 		die(err)
@@ -27,7 +30,7 @@ func main() {
 	case "help":
 		cli.Usage(0)
 	case "list":
-		cli.List(tags)
+		cli.List(&output, tags)
 	case "zero":
 		err = cli.Zero(gitCmd, tags)
 	case "patch":
