@@ -1,4 +1,4 @@
-package main
+package git
 
 import (
 	"context"
@@ -8,6 +8,8 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/modprox/taggit/internal/tags"
 )
 
 // git tag -l
@@ -27,24 +29,24 @@ func git(args []string, timeout time.Duration) string {
 }
 
 // newest version to oldest version
-func listTags() []Tag {
+func ListTags() []tags.Tag {
 	output := git([]string{"tag", "-l"}, 10*time.Second)
 	lines := strings.Split(output, "\n")
 
-	tags := make([]Tag, 0, len(lines))
+	parsedTags := make([]tags.Tag, 0, len(lines))
 	for _, line := range lines {
-		if tag, ok := Parse(line); ok {
-			tags = append(tags, tag)
+		if tag, ok := tags.Parse(line); ok {
+			parsedTags = append(parsedTags, tag)
 		}
 	}
 
-	sortable := TagsBySemver(tags)
+	sortable := tags.BySemver(parsedTags)
 	sort.Sort(sort.Reverse(sortable))
 
-	return tags
+	return parsedTags
 }
 
-func createTag(tag Tag) {
+func CreateTag(tag tags.Tag) {
 	fmt.Println("taggit: creating tag:", tag)
 
 	_ = git([]string{"tag", tag.String()}, 3*time.Second)

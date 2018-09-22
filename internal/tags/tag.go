@@ -1,4 +1,4 @@
-package main
+package tags
 
 import (
 	"fmt"
@@ -47,18 +47,18 @@ func (t Tag) String() string {
 }
 
 var (
-	ZeroTag = Tag{
+	ZeroValue = Tag{
 		Major: 0,
 		Minor: 0,
 		Patch: 0,
 	}
 )
 
-type TagsBySemver []Tag
+type BySemver []Tag
 
-func (tags TagsBySemver) Len() int      { return len(tags) }
-func (tags TagsBySemver) Swap(x, y int) { tags[x], tags[y] = tags[y], tags[x] }
-func (tags TagsBySemver) Less(x, y int) bool {
+func (tags BySemver) Len() int      { return len(tags) }
+func (tags BySemver) Swap(x, y int) { tags[x], tags[y] = tags[y], tags[x] }
+func (tags BySemver) Less(x, y int) bool {
 	X := tags[x]
 	Y := tags[y]
 
