@@ -17,59 +17,52 @@ func List(tags []tags.Tag) {
 	fmt.Print(b.String())
 }
 
-func Zero(repoTags []tags.Tag) error {
+func Zero(cmd git.Cmd, repoTags []tags.Tag) error {
 	if len(repoTags) > 0 {
 		return fmt.Errorf("refusing to generate zero tag (v0.0.0) when other semver tags already exist")
 	}
-	git.CreateTag(tags.ZeroValue)
 
-	return nil
+	return git.CreateTag(cmd, tags.ZeroValue)
 }
 
-func Patch(repoTags []tags.Tag) error {
+func Patch(cmd git.Cmd, repoTags []tags.Tag) error {
 	if len(repoTags) < 1 {
 		return fmt.Errorf("refusing to bump patch with no pre-existing tag")
 	}
 
 	latest := repoTags[0]
 
-	git.CreateTag(tags.Tag{
+	return git.CreateTag(cmd, tags.Tag{
 		Major: latest.Major,
 		Minor: latest.Minor,
 		Patch: latest.Patch + 1,
 	})
-
-	return nil
 }
 
-func Minor(repoTags []tags.Tag) error {
+func Minor(cmd git.Cmd, repoTags []tags.Tag) error {
 	if len(repoTags) < 1 {
 		return fmt.Errorf("refusing to bump minor with no pre-existing tag")
 	}
 
 	latest := repoTags[0]
 
-	git.CreateTag(tags.Tag{
+	return git.CreateTag(cmd, tags.Tag{
 		Major: latest.Major,
 		Minor: latest.Minor + 1,
 		Patch: 0,
 	})
-
-	return nil
 }
 
-func Major(repoTags []tags.Tag) error {
+func Major(cmd git.Cmd, repoTags []tags.Tag) error {
 	if len(repoTags) < 1 {
 		return fmt.Errorf("refusing to bump major with no pre-existnig tag")
 	}
 
 	latest := repoTags[0]
 
-	git.CreateTag(tags.Tag{
+	return git.CreateTag(cmd, tags.Tag{
 		Major: latest.Major + 1,
 		Minor: 0,
 		Patch: 0,
 	})
-
-	return nil
 }
