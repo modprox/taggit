@@ -10,6 +10,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+//go:generate mockery -interface=Cmd -package=gittest
+
 // An Cmd executes git commands.
 type Cmd interface {
 	Run(args []string, timeout time.Duration) (string, error)
