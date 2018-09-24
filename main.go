@@ -18,8 +18,9 @@ func main() {
 	command := os.Args[1]
 
 	gitCmd := git.New("git")
-
 	var output bytes.Buffer
+
+	tool := cli.NewTool(&output, gitCmd)
 
 	tags, err := git.ListTags(gitCmd)
 	if err != nil {
@@ -30,16 +31,15 @@ func main() {
 	case "help":
 		cli.Usage(0)
 	case "list":
-		cli.List(&output, tags)
+		err = tool.List(tags)
 	case "zero":
-		err = cli.Zero(gitCmd, tags)
+		err = tool.Zero(tags)
 	case "patch":
-		err = cli.Patch(gitCmd, tags)
+		err = tool.Patch(tags)
 	case "minor":
-		err = cli.Minor(gitCmd, tags)
+		err = tool.Minor(tags)
 	case "major":
-		err = cli.Major(gitCmd, tags)
-
+		err = tool.Major(tags)
 	default:
 		cli.Usage(1)
 	}

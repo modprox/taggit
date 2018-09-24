@@ -12,11 +12,22 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func newTool(t *testing.T) (*tool, *bytes.Buffer, *gittest.Cmd) {
+	var buf bytes.Buffer
+	gitCmd := &gittest.Cmd{}
+	tool := NewTool(&buf, gitCmd).(*tool)
+	return tool, &buf, gitCmd
+}
+
 func Test_List(t *testing.T) {
+
 	try := func(in []tags.Tag, exp string) {
-		var w bytes.Buffer
-		List(&w, in)
-		output := w.String()
+		tool, buf, gitCmd := newTool(t)
+		defer gitCmd.AssertExpectations(t)
+
+		err := tool.List(in)
+		require.NoError(t, err)
+		output := buf.String()
 		require.Equal(t, exp, output)
 	}
 
@@ -34,95 +45,102 @@ func Test_List(t *testing.T) {
 }
 
 func Test_Zero_empty(t *testing.T) {
-	cmd := &gittest.Cmd{}
-	defer cmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTool(t)
+	defer gitCmd.AssertExpectations(t)
 
-	cmd.On(
+	gitCmd.On(
 		"Run",
 		[]string{"tag", "v0.0.0"},
 		3*time.Second).Return("", nil).Once()
 
-	cmd.On(
+	gitCmd.On(
 		"Run",
 		[]string{"push", "origin", "v0.0.0"},
 		1*time.Minute).Return("", nil).Once()
 
-	err := Zero(cmd, []tags.Tag{})
+	err := tool.Zero([]tags.Tag{})
 	require.NoError(t, err)
+	require.Equal(t, "created tag v0.0.0", buf.String())
 }
 
 func Test_Zero_non_empty(t *testing.T) {
-	cmd := &gittest.Cmd{}
-	defer cmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTool(t)
+	defer gitCmd.AssertExpectations(t)
 
-	err := Zero(cmd, []tags.Tag{tags.New(0, 0, 1)})
+	err := tool.Zero([]tags.Tag{
+		tags.New(0, 0, 1),
+	})
 	require.Error(t, err)
+	require.Equal(t, "refusing to generate zero tag (v0.0.0) when other semver tags already exist", buf.String())
 }
 
 func Test_Zero_failure(t *testing.T) {
-	cmd := &gittest.Cmd{}
-	defer cmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTool(t)
+	defer gitCmd.AssertExpectations(t)
 
-	cmd.On(
+	gitCmd.On(
 		"Run",
 		[]string{"tag", "v0.0.0"},
 		3*time.Second).Return("", nil).Once()
 
-	cmd.On(
+	gitCmd.On(
 		"Run",
 		[]string{"push", "origin", "v0.0.0"},
 		1*time.Minute).Return(
 		"", errors.New("git is broken"),
 	).Once()
 
-	err := Zero(cmd, []tags.Tag{})
+	err := tool.Zero([]tags.Tag{})
 	require.Error(t, err)
+	require.Equal(t, "failed to create tag: git is broken", buf.String())
 }
 
 func Test_Patch_empty(t *testing.T) {
-	cmd := &gittest.Cmd{}
-	defer cmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTool(t)
+	defer gitCmd.AssertExpectations(t)
 
-	err := Patch(cmd, []tags.Tag{})
+	err := tool.Patch([]tags.Tag{})
 	require.Error(t, err)
+	require.Equal(t, "refusing to bump patch with no pre-existing tag", buf.String())
 }
 
 func Test_Patch_non_empty(t *testing.T) {
-	cmd := &gittest.Cmd{}
-	defer cmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTool(t)
+	defer gitCmd.AssertExpectations(t)
 
-	cmd.On(
+	gitCmd.On(
 		"Run",
 		[]string{"tag", "v2.1.5"},
 		3*time.Second,
 	).Return("", nil).Once()
 
-	cmd.On(
+	gitCmd.On(
 		"Run",
 		[]string{"push", "origin", "v2.1.5"},
 		1*time.Minute,
 	).Return("", nil).Once()
 
-	err := Patch(cmd, []tags.Tag{
+	err := tool.Patch([]tags.Tag{
 		tags.New(2, 1, 4),
 		tags.New(2, 0, 0),
 		tags.New(1, 2, 3),
 	})
 
 	require.NoError(t, err)
+	require.Equal(t, "created tag v2.1.5", buf.String())
 }
 
 func Test_Patch_failure(t *testing.T) {
-	cmd := &gittest.Cmd{}
-	defer cmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTool(t)
+	defer gitCmd.AssertExpectations(t)
 
-	cmd.On(
+	gitCmd.On(
 		"Run",
 		[]string{"tag", "v2.1.5"},
 		3*time.Second,
 	).Return("", nil).Once()
 
-	cmd.On(
+	gitCmd.On(
 		"Run",
 		[]string{"push", "origin", "v2.1.5"},
 		1*time.Minute,
@@ -130,59 +148,62 @@ func Test_Patch_failure(t *testing.T) {
 		"", errors.New("git is broken"),
 	).Once()
 
-	err := Patch(cmd, []tags.Tag{
+	err := tool.Patch([]tags.Tag{
 		tags.New(2, 1, 4),
 		tags.New(2, 0, 0),
 		tags.New(1, 2, 3),
 	})
 
 	require.Error(t, err)
+	require.Equal(t, "failed to create tag: git is broken", buf.String())
 }
 
 func Test_Minor_empty(t *testing.T) {
-	cmd := &gittest.Cmd{}
-	defer cmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTool(t)
+	defer gitCmd.AssertExpectations(t)
 
-	err := Minor(cmd, []tags.Tag{})
+	err := tool.Minor([]tags.Tag{})
 	require.Error(t, err)
+	require.Equal(t, "refusing to bump minor with no pre-existing tag", buf.String())
 }
 
 func Test_Minor_non_empty(t *testing.T) {
-	cmd := &gittest.Cmd{}
-	defer cmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTool(t)
+	defer gitCmd.AssertExpectations(t)
 
-	cmd.On(
+	gitCmd.On(
 		"Run",
 		[]string{"tag", "v2.2.0"},
 		3*time.Second,
 	).Return("", nil).Once()
 
-	cmd.On(
+	gitCmd.On(
 		"Run",
 		[]string{"push", "origin", "v2.2.0"},
 		1*time.Minute,
 	).Return("", nil).Once()
 
-	err := Minor(cmd, []tags.Tag{
+	err := tool.Minor([]tags.Tag{
 		tags.New(2, 1, 4),
 		tags.New(2, 0, 0),
 		tags.New(1, 2, 3),
 	})
 
 	require.NoError(t, err)
+	require.Equal(t, "created tag v2.2.0", buf.String())
 }
 
 func Test_Minor_failure(t *testing.T) {
-	cmd := &gittest.Cmd{}
-	defer cmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTool(t)
+	defer gitCmd.AssertExpectations(t)
 
-	cmd.On(
+	gitCmd.On(
 		"Run",
 		[]string{"tag", "v2.2.0"},
 		3*time.Second,
 	).Return("", nil).Once()
 
-	cmd.On(
+	gitCmd.On(
 		"Run",
 		[]string{"push", "origin", "v2.2.0"},
 		1*time.Minute,
@@ -190,59 +211,64 @@ func Test_Minor_failure(t *testing.T) {
 		"", errors.New("git is broken"),
 	).Once()
 
-	err := Minor(cmd, []tags.Tag{
+	err := tool.Minor([]tags.Tag{
 		tags.New(2, 1, 4),
 		tags.New(2, 0, 0),
 		tags.New(1, 2, 3),
 	})
 
 	require.Error(t, err)
+	require.Equal(t, "failed to create tag: git is broken", buf.String())
 }
 
-func Test_Major_empty(t *testing.T) {
-	cmd := &gittest.Cmd{}
-	defer cmd.AssertExpectations(t)
+// major
 
-	err := Major(cmd, []tags.Tag{})
+func Test_Major_empty(t *testing.T) {
+	tool, buf, gitCmd := newTool(t)
+	defer gitCmd.AssertExpectations(t)
+
+	err := tool.Major([]tags.Tag{})
 	require.Error(t, err)
+	require.Equal(t, "refusing to bump major with no pre-existing tag", buf.String())
 }
 
 func Test_Major_non_empty(t *testing.T) {
-	cmd := &gittest.Cmd{}
-	defer cmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTool(t)
+	defer gitCmd.AssertExpectations(t)
 
-	cmd.On(
+	gitCmd.On(
 		"Run",
 		[]string{"tag", "v3.0.0"},
 		3*time.Second,
 	).Return("", nil).Once()
 
-	cmd.On(
+	gitCmd.On(
 		"Run",
 		[]string{"push", "origin", "v3.0.0"},
 		1*time.Minute,
 	).Return("", nil).Once()
 
-	err := Major(cmd, []tags.Tag{
+	err := tool.Major([]tags.Tag{
 		tags.New(2, 1, 4),
 		tags.New(2, 0, 0),
 		tags.New(1, 2, 3),
 	})
 
 	require.NoError(t, err)
+	require.Equal(t, "created tag v3.0.0", buf.String())
 }
 
-func Test_Major_non_failure(t *testing.T) {
-	cmd := &gittest.Cmd{}
-	defer cmd.AssertExpectations(t)
+func Test_Major_failure(t *testing.T) {
+	tool, buf, gitCmd := newTool(t)
+	defer gitCmd.AssertExpectations(t)
 
-	cmd.On(
+	gitCmd.On(
 		"Run",
 		[]string{"tag", "v3.0.0"},
 		3*time.Second,
 	).Return("", nil).Once()
 
-	cmd.On(
+	gitCmd.On(
 		"Run",
 		[]string{"push", "origin", "v3.0.0"},
 		1*time.Minute,
@@ -250,11 +276,12 @@ func Test_Major_non_failure(t *testing.T) {
 		"", errors.New("git is broken"),
 	).Once()
 
-	err := Major(cmd, []tags.Tag{
+	err := tool.Major([]tags.Tag{
 		tags.New(2, 1, 4),
 		tags.New(2, 0, 0),
 		tags.New(1, 2, 3),
 	})
 
 	require.Error(t, err)
+	require.Equal(t, "failed to create tag: git is broken", buf.String())
 }
