@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/modprox/mp/pkg/loggy"
+
 	"github.com/pkg/errors"
 
 	"github.com/modprox/mp/pkg/clients/registry"
@@ -95,6 +97,7 @@ func newPublisher(registryURL string) (publish.Publisher, error) {
 	client := registry.NewClient(registry.Options{
 		Instances: instances,
 		Timeout:   10 * time.Second,
+		Log:       loggy.Discard(),
 	})
 
 	modFinder := publish.NewModFinder()
