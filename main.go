@@ -8,11 +8,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/modprox/mp/pkg/loggy"
-
 	"github.com/pkg/errors"
 
 	"github.com/modprox/mp/pkg/clients/registry"
+	"github.com/modprox/mp/pkg/loggy"
 	"github.com/modprox/mp/pkg/netservice"
 	"github.com/modprox/taggit/internal/cli"
 	"github.com/modprox/taggit/internal/git"
