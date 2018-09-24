@@ -38,7 +38,7 @@ type tool struct {
 }
 
 func (t *tool) write(s string) error {
-	_, err := t.output.Write([]byte(s + "\n"))
+	_, err := t.output.Write([]byte("taggit: " + s + "\n"))
 	return err
 }
 
@@ -48,7 +48,8 @@ func (t *tool) List(repoTags []tags.Tag) error {
 		b.WriteString(tag.String())
 		b.WriteString("\n")
 	}
-	return t.write(b.String())
+	_, err := t.output.Write(b.Bytes())
+	return err
 }
 
 func (t *tool) Zero(repoTags []tags.Tag) error {
@@ -68,7 +69,7 @@ func (t *tool) Zero(repoTags []tags.Tag) error {
 		return err
 	}
 
-	if err := t.write("created tag v0.0.0"); err != nil {
+	if err := t.write("created tag: v0.0.0"); err != nil {
 		return err
 	}
 
@@ -76,7 +77,7 @@ func (t *tool) Zero(repoTags []tags.Tag) error {
 		return err
 	}
 
-	return t.write("published tag v0.0.0")
+	return t.write("published tag: v0.0.0")
 }
 
 func (t *tool) Patch(repoTags []tags.Tag) error {
@@ -99,7 +100,7 @@ func (t *tool) Patch(repoTags []tags.Tag) error {
 		return err
 	}
 
-	msg := fmt.Sprintf("created tag %s", newTag)
+	msg := fmt.Sprintf("created tag: %s", newTag)
 	if err := t.write(msg); err != nil {
 		return err
 	}
@@ -108,7 +109,7 @@ func (t *tool) Patch(repoTags []tags.Tag) error {
 		return err
 	}
 
-	return t.write("published tag " + newTag.String())
+	return t.write("published tag: " + newTag.String())
 }
 
 func (t *tool) Minor(repoTags []tags.Tag) error {
@@ -131,7 +132,7 @@ func (t *tool) Minor(repoTags []tags.Tag) error {
 		return err
 	}
 
-	msg := fmt.Sprintf("created tag %s", newTag)
+	msg := fmt.Sprintf("created tag: %s", newTag)
 	if err := t.write(msg); err != nil {
 		return err
 	}
@@ -140,7 +141,7 @@ func (t *tool) Minor(repoTags []tags.Tag) error {
 		return err
 	}
 
-	return t.write("published tag " + newTag.String())
+	return t.write("published tag: " + newTag.String())
 }
 
 func (t *tool) Major(repoTags []tags.Tag) error {
@@ -163,7 +164,7 @@ func (t *tool) Major(repoTags []tags.Tag) error {
 		return err
 	}
 
-	msg := fmt.Sprintf("created tag %s", newTag)
+	msg := fmt.Sprintf("created tag: %s", newTag)
 	if err := t.write(msg); err != nil {
 		return err
 	}
@@ -172,5 +173,5 @@ func (t *tool) Major(repoTags []tags.Tag) error {
 		return err
 	}
 
-	return t.write("published tag " + newTag.String())
+	return t.write("published tag: " + newTag.String())
 }

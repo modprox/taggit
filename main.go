@@ -2,7 +2,6 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"net/url"
 	"os"
@@ -31,7 +30,6 @@ func main() {
 
 	command := os.Args[1]
 	gitCmd := git.New("git")
-	var output bytes.Buffer
 
 	registryURL := os.Getenv(registryEnv)
 	publisher, err := newPublisher(registryURL)
@@ -39,7 +37,7 @@ func main() {
 		die(err)
 	}
 
-	tool := cli.NewTool(&output, gitCmd, publisher)
+	tool := cli.NewTool(os.Stdout, gitCmd, publisher)
 
 	tags, err := git.ListTags(gitCmd)
 	if err != nil {
