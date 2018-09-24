@@ -4,11 +4,22 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"net/url"
 	"os"
+	"strconv"
+	"time"
 
+	"github.com/pkg/errors"
+
+	"github.com/modprox/mp/pkg/clients/registry"
+	"github.com/modprox/mp/pkg/netservice"
 	"github.com/modprox/taggit/internal/cli"
 	"github.com/modprox/taggit/internal/git"
 	"github.com/modprox/taggit/internal/publish"
+)
+
+const (
+	registryEnv = "TAGGIT_REGISTRY_URL"
 )
 
 func main() {
@@ -17,13 +28,14 @@ func main() {
 	}
 
 	command := os.Args[1]
-
 	gitCmd := git.New("git")
 	var output bytes.Buffer
 
-	// modFinder := publish.NewModFinder()
-	// pubber := publish.New(publish.Discard(), modFinder)
-	publisher := publish.Discard()
+	registryURL := os.Getenv(registryEnv)
+	publisher, err := newPublisher(registryURL)
+	if err != nil {
+		die(err)
+	}
 
 	tool := cli.NewTool(&output, gitCmd, publisher)
 
@@ -57,4 +69,35 @@ func main() {
 func die(err error) {
 	fmt.Fprintf(os.Stderr, "failed: %v\n", err)
 	os.Exit(1)
+}
+
+func newPublisher(registryURL string) (publish.Publisher, error) {
+	if registryURL == "" {
+		return publish.Discard(), nil
+	}
+
+	parsedURL, err := url.Parse(registryURL)
+	if err != nil {
+		return nil, errors.Wrap(err, "not a valid registry URL")
+	}
+
+	port, err := strconv.Atoi(parsedURL.Port())
+	if err != nil {
+		port = 0
+	}
+
+	scheme := parsedURL.Scheme + "://"
+	instances := []netservice.Instance{{
+		Address: scheme + parsedURL.Host,
+		Port:    port,
+	}}
+
+	client := registry.NewClient(registry.Options{
+		Instances: instances,
+		Timeout:   10 * time.Second,
+	})
+
+	modFinder := publish.NewModFinder()
+
+	return publish.New(client, modFinder), nil
 }
