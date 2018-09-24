@@ -7,6 +7,7 @@ import (
 	"io"
 
 	"github.com/modprox/taggit/internal/git"
+	"github.com/modprox/taggit/internal/publish"
 	"github.com/modprox/taggit/internal/tags"
 )
 
@@ -18,16 +19,27 @@ type Tool interface {
 	Major([]tags.Tag) error
 }
 
-func NewTool(output io.Writer, gitCmd git.Cmd) Tool {
+func NewTool(
+	output io.Writer,
+	gitCmd git.Cmd,
+	publisher publish.Publisher,
+) Tool {
 	return &tool{
-		output: output,
-		gitCmd: gitCmd,
+		output:    output,
+		gitCmd:    gitCmd,
+		publisher: publisher,
 	}
 }
 
 type tool struct {
-	output io.Writer
-	gitCmd git.Cmd
+	output    io.Writer
+	gitCmd    git.Cmd
+	publisher publish.Publisher
+}
+
+func (t *tool) write(s string) error {
+	_, err := t.output.Write([]byte(s + "\n"))
+	return err
 }
 
 func (t *tool) List(repoTags []tags.Tag) error {
@@ -36,14 +48,13 @@ func (t *tool) List(repoTags []tags.Tag) error {
 		b.WriteString(tag.String())
 		b.WriteString("\n")
 	}
-	_, err := t.output.Write(b.Bytes())
-	return err
+	return t.write(b.String())
 }
 
 func (t *tool) Zero(repoTags []tags.Tag) error {
 	if len(repoTags) > 0 {
 		msg := "refusing to generate zero tag (v0.0.0) when other semver tags already exist"
-		t.output.Write([]byte(msg))
+		_ = t.write(msg)
 		return errors.New("tags already exist")
 	}
 
@@ -53,18 +64,25 @@ func (t *tool) Zero(repoTags []tags.Tag) error {
 		Patch: 0,
 	}); err != nil {
 		msg := "failed to create tag: " + err.Error()
-		t.output.Write([]byte(msg))
+		_ = t.write(msg)
 		return err
 	}
 
-	_, err := io.WriteString(t.output, "created tag v0.0.0")
-	return err
+	if err := t.write("created tag v0.0.0"); err != nil {
+		return err
+	}
+
+	if err := t.publisher.Publish("v0.0.0"); err != nil {
+		return err
+	}
+
+	return t.write("published tag v0.0.0")
 }
 
 func (t *tool) Patch(repoTags []tags.Tag) error {
 	if len(repoTags) < 1 {
 		msg := "refusing to bump patch with no pre-existing tag"
-		t.output.Write([]byte(msg))
+		t.write(msg)
 		return errors.New("no tags exist yet")
 	}
 
@@ -77,19 +95,26 @@ func (t *tool) Patch(repoTags []tags.Tag) error {
 
 	if err := git.CreateTag(t.gitCmd, newTag); err != nil {
 		msg := "failed to create tag: " + err.Error()
-		t.output.Write([]byte(msg))
+		t.write(msg)
 		return err
 	}
 
 	msg := fmt.Sprintf("created tag %s", newTag)
-	_, err := io.WriteString(t.output, msg)
-	return err
+	if err := t.write(msg); err != nil {
+		return err
+	}
+
+	if err := t.publisher.Publish(newTag.String()); err != nil {
+		return err
+	}
+
+	return t.write("published tag " + newTag.String())
 }
 
 func (t *tool) Minor(repoTags []tags.Tag) error {
 	if len(repoTags) < 1 {
 		msg := "refusing to bump minor with no pre-existing tag"
-		t.output.Write([]byte(msg))
+		_ = t.write(msg)
 		return errors.New("no tags exist yet")
 	}
 
@@ -102,19 +127,26 @@ func (t *tool) Minor(repoTags []tags.Tag) error {
 
 	if err := git.CreateTag(t.gitCmd, newTag); err != nil {
 		msg := "failed to create tag: " + err.Error()
-		t.output.Write([]byte(msg))
+		_ = t.write(msg)
 		return err
 	}
 
 	msg := fmt.Sprintf("created tag %s", newTag)
-	_, err := io.WriteString(t.output, msg)
-	return err
+	if err := t.write(msg); err != nil {
+		return err
+	}
+
+	if err := t.publisher.Publish(newTag.String()); err != nil {
+		return err
+	}
+
+	return t.write("published tag " + newTag.String())
 }
 
 func (t *tool) Major(repoTags []tags.Tag) error {
 	if len(repoTags) < 1 {
 		msg := "refusing to bump major with no pre-existing tag"
-		t.output.Write([]byte(msg))
+		_ = t.write(msg)
 		return errors.New("no tags exist yet")
 	}
 
@@ -127,11 +159,18 @@ func (t *tool) Major(repoTags []tags.Tag) error {
 
 	if err := git.CreateTag(t.gitCmd, newTag); err != nil {
 		msg := "failed to create tag: " + err.Error()
-		t.output.Write([]byte(msg))
+		_ = t.write(msg)
 		return err
 	}
 
 	msg := fmt.Sprintf("created tag %s", newTag)
-	_, err := io.WriteString(t.output, msg)
-	return err
+	if err := t.write(msg); err != nil {
+		return err
+	}
+
+	if err := t.publisher.Publish(newTag.String()); err != nil {
+		return err
+	}
+
+	return t.write("published tag " + newTag.String())
 }

@@ -8,6 +8,7 @@ import (
 
 	"github.com/modprox/taggit/internal/cli"
 	"github.com/modprox/taggit/internal/git"
+	"github.com/modprox/taggit/internal/publish"
 )
 
 func main() {
@@ -20,7 +21,11 @@ func main() {
 	gitCmd := git.New("git")
 	var output bytes.Buffer
 
-	tool := cli.NewTool(&output, gitCmd)
+	// modFinder := publish.NewModFinder()
+	// pubber := publish.New(publish.Discard(), modFinder)
+	publisher := publish.Discard()
+
+	tool := cli.NewTool(&output, gitCmd, publisher)
 
 	tags, err := git.ListTags(gitCmd)
 	if err != nil {

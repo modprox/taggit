@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/modprox/taggit/internal/git/gittest"
+	"github.com/modprox/taggit/internal/publish"
 	"github.com/modprox/taggit/internal/tags"
 
 	"github.com/stretchr/testify/require"
@@ -15,7 +16,8 @@ import (
 func newTool(t *testing.T) (*tool, *bytes.Buffer, *gittest.Cmd) {
 	var buf bytes.Buffer
 	gitCmd := &gittest.Cmd{}
-	tool := NewTool(&buf, gitCmd).(*tool)
+	publisher := publish.Discard()
+	tool := NewTool(&buf, gitCmd, publisher).(*tool)
 	return tool, &buf, gitCmd
 }
 
@@ -31,17 +33,17 @@ func Test_List(t *testing.T) {
 		require.Equal(t, exp, output)
 	}
 
-	try([]tags.Tag{}, "")
+	try([]tags.Tag{}, "\n")
 
 	try([]tags.Tag{
 		tags.New(1, 2, 3),
-	}, "v1.2.3\n")
+	}, "v1.2.3\n\n")
 
 	try([]tags.Tag{
 		tags.New(0, 0, 1),
 		tags.New(1, 0, 0),
 		tags.New(0, 1, 0),
-	}, "v0.0.1\nv1.0.0\nv0.1.0\n")
+	}, "v0.0.1\nv1.0.0\nv0.1.0\n\n")
 }
 
 func Test_Zero_empty(t *testing.T) {
@@ -60,7 +62,7 @@ func Test_Zero_empty(t *testing.T) {
 
 	err := tool.Zero([]tags.Tag{})
 	require.NoError(t, err)
-	require.Equal(t, "created tag v0.0.0", buf.String())
+	require.Equal(t, "created tag v0.0.0\npublished tag v0.0.0\n", buf.String())
 }
 
 func Test_Zero_non_empty(t *testing.T) {
@@ -71,7 +73,7 @@ func Test_Zero_non_empty(t *testing.T) {
 		tags.New(0, 0, 1),
 	})
 	require.Error(t, err)
-	require.Equal(t, "refusing to generate zero tag (v0.0.0) when other semver tags already exist", buf.String())
+	require.Equal(t, "refusing to generate zero tag (v0.0.0) when other semver tags already exist\n", buf.String())
 }
 
 func Test_Zero_failure(t *testing.T) {
@@ -92,7 +94,7 @@ func Test_Zero_failure(t *testing.T) {
 
 	err := tool.Zero([]tags.Tag{})
 	require.Error(t, err)
-	require.Equal(t, "failed to create tag: git is broken", buf.String())
+	require.Equal(t, "failed to create tag: git is broken\n", buf.String())
 }
 
 func Test_Patch_empty(t *testing.T) {
@@ -101,7 +103,7 @@ func Test_Patch_empty(t *testing.T) {
 
 	err := tool.Patch([]tags.Tag{})
 	require.Error(t, err)
-	require.Equal(t, "refusing to bump patch with no pre-existing tag", buf.String())
+	require.Equal(t, "refusing to bump patch with no pre-existing tag\n", buf.String())
 }
 
 func Test_Patch_non_empty(t *testing.T) {
@@ -127,7 +129,7 @@ func Test_Patch_non_empty(t *testing.T) {
 	})
 
 	require.NoError(t, err)
-	require.Equal(t, "created tag v2.1.5", buf.String())
+	require.Equal(t, "created tag v2.1.5\npublished tag v2.1.5\n", buf.String())
 }
 
 func Test_Patch_failure(t *testing.T) {
@@ -155,7 +157,7 @@ func Test_Patch_failure(t *testing.T) {
 	})
 
 	require.Error(t, err)
-	require.Equal(t, "failed to create tag: git is broken", buf.String())
+	require.Equal(t, "failed to create tag: git is broken\n", buf.String())
 }
 
 func Test_Minor_empty(t *testing.T) {
@@ -164,7 +166,7 @@ func Test_Minor_empty(t *testing.T) {
 
 	err := tool.Minor([]tags.Tag{})
 	require.Error(t, err)
-	require.Equal(t, "refusing to bump minor with no pre-existing tag", buf.String())
+	require.Equal(t, "refusing to bump minor with no pre-existing tag\n", buf.String())
 }
 
 func Test_Minor_non_empty(t *testing.T) {
@@ -190,7 +192,7 @@ func Test_Minor_non_empty(t *testing.T) {
 	})
 
 	require.NoError(t, err)
-	require.Equal(t, "created tag v2.2.0", buf.String())
+	require.Equal(t, "created tag v2.2.0\npublished tag v2.2.0\n", buf.String())
 }
 
 func Test_Minor_failure(t *testing.T) {
@@ -218,10 +220,8 @@ func Test_Minor_failure(t *testing.T) {
 	})
 
 	require.Error(t, err)
-	require.Equal(t, "failed to create tag: git is broken", buf.String())
+	require.Equal(t, "failed to create tag: git is broken\n", buf.String())
 }
-
-// major
 
 func Test_Major_empty(t *testing.T) {
 	tool, buf, gitCmd := newTool(t)
@@ -229,7 +229,7 @@ func Test_Major_empty(t *testing.T) {
 
 	err := tool.Major([]tags.Tag{})
 	require.Error(t, err)
-	require.Equal(t, "refusing to bump major with no pre-existing tag", buf.String())
+	require.Equal(t, "refusing to bump major with no pre-existing tag\n", buf.String())
 }
 
 func Test_Major_non_empty(t *testing.T) {
@@ -255,7 +255,7 @@ func Test_Major_non_empty(t *testing.T) {
 	})
 
 	require.NoError(t, err)
-	require.Equal(t, "created tag v3.0.0", buf.String())
+	require.Equal(t, "created tag v3.0.0\npublished tag v3.0.0\n", buf.String())
 }
 
 func Test_Major_failure(t *testing.T) {
@@ -283,5 +283,5 @@ func Test_Major_failure(t *testing.T) {
 	})
 
 	require.Error(t, err)
-	require.Equal(t, "failed to create tag: git is broken", buf.String())
+	require.Equal(t, "failed to create tag: git is broken\n", buf.String())
 }
