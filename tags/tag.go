@@ -54,6 +54,22 @@ func (t Tag) String() string {
 	)
 }
 
+func (t Tag) Less(o Tag) bool {
+	if t.Major < o.Major {
+		return true
+	} else if t.Major > o.Major {
+		return false
+	}
+
+	if t.Minor < o.Minor {
+		return true
+	} else if t.Minor > o.Minor {
+		return false
+	}
+
+	return t.Patch < o.Patch
+}
+
 var (
 	ZeroValue = Tag{
 		Major: 0,
@@ -69,18 +85,5 @@ func (tags BySemver) Swap(x, y int) { tags[x], tags[y] = tags[y], tags[x] }
 func (tags BySemver) Less(x, y int) bool {
 	X := tags[x]
 	Y := tags[y]
-
-	if X.Major < Y.Major {
-		return true
-	} else if X.Major > Y.Major {
-		return false
-	}
-
-	if X.Minor < Y.Minor {
-		return true
-	} else if X.Minor > Y.Minor {
-		return false
-	}
-
-	return X.Patch < Y.Patch
+	return X.Less(Y)
 }

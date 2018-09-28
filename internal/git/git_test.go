@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/modprox/taggit/internal/git/gittest"
-	"github.com/modprox/taggit/internal/tags"
+	"github.com/modprox/taggit/tags"
 	"github.com/stretchr/testify/require"
 )
 

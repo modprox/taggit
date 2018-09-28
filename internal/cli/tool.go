@@ -8,7 +8,7 @@ import (
 
 	"github.com/modprox/taggit/internal/git"
 	"github.com/modprox/taggit/internal/publish"
-	"github.com/modprox/taggit/internal/tags"
+	"github.com/modprox/taggit/tags"
 )
 
 type Tool interface {
