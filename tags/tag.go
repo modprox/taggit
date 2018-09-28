@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	semverRe = regexp.MustCompile(`^v([0-9]+)\.([0-9]+)\.([0-9])$`)
+	semverRe = regexp.MustCompile(`^v([0-9]+)\.([0-9]+)\.([0-9]+)$`)
 )
 
 func New(major, minor, patch int) Tag {

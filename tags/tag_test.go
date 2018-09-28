@@ -26,6 +26,16 @@ func Test_Parse_ok(t *testing.T) {
 	}, tag)
 }
 
+func Test_Parse_big_ok(t *testing.T) {
+	tag, ok := Parse("v111.222.333")
+	require.True(t, ok)
+	require.Equal(t, Tag{
+		Major: 111,
+		Minor: 222,
+		Patch: 333,
+	}, tag)
+}
+
 func Test_String(t *testing.T) {
 	tag := New(1, 2, 3)
 	s := tag.String()
