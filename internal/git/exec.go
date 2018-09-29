@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-//go:generate mockery -interface=Cmd -package=gittest
+//go:generate mockery3 -interface=Cmd -package=gittest
 
 // An Cmd executes git commands.
 type Cmd interface {

@@ -12,7 +12,7 @@ const (
 	modproxNewAPI = "/v1/registry/sources/new"
 )
 
-//go:generate mockery -interface=Publisher -package=publishtest
+//go:generate mockery3 -interface=Publisher -package=publishtest
 
 type Publisher interface {
 	Publish(version string) error
