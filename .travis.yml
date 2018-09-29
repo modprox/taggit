@@ -1,0 +1,14 @@
+language: go
+
+go:
+  - 1.11.x
+
+install:
+  - go get github.com/shoenig/mockery3
+
+script:
+  - go generate ./...
+  - go build ./...
+  - go vet ./...
+  - go test ./...
+
