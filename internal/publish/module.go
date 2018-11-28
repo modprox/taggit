@@ -37,8 +37,8 @@ func (m *modFinder) lookIn(path string) (string, error) {
 	for _, file := range files {
 		filename := file.Name()
 		if filename == "go.mod" {
-			fullname := filepath.Join(path, filename)
-			return m.readModFile(fullname)
+			fullName := filepath.Join(path, filename)
+			return m.readModFile(fullName)
 		}
 	}
 
@@ -58,14 +58,18 @@ func (m *modFinder) readModFile(filename string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer f.Close()
+	defer func() {
+		_ = f.Close()
+	}()
 
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		line := scanner.Text()
 		groups := moduleRe.FindStringSubmatch(line)
 		if len(groups) == 2 {
-			return groups[1], nil
+			fullModuleName := groups[1]
+			noSuffixName := trimMajorSuffix(fullModuleName)
+			return noSuffixName, nil
 		}
 	}
 	if err := scanner.Err(); err != nil {
@@ -73,4 +77,15 @@ func (m *modFinder) readModFile(filename string) (string, error) {
 	}
 
 	return "", errors.New("go.mod file did not declare module name")
+}
+
+var (
+	suffixRe = regexp.MustCompile(`(/v[0-9]+)$`)
+)
+
+// modules which are at version v2+ must be suffixed with
+// their major version (e.g. foo/bar/v2), however the compiler
+// does not use that suffix when resolving modules.
+func trimMajorSuffix(module string) string {
+	return suffixRe.ReplaceAllString(module, "")
 }

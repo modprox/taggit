@@ -107,3 +107,16 @@ func Test_modFinder_FindModule_noFile(t *testing.T) {
 	_, err := finder.FindModule(filepath.Join(root, deep))
 	require.Error(t, err)
 }
+
+func Test_trimMajorSuffix(t *testing.T) {
+	try := func(m string, exp string) {
+		result := trimMajorSuffix(m)
+		require.Equal(t, exp, result)
+	}
+
+	try("a", "a")
+	try("a/v2", "a")
+	try("a/b/c", "a/b/c")
+	try("a/b/c/v2", "a/b/c")
+	try("foo/v12", "foo")
+}

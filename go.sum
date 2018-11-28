@@ -9,10 +9,6 @@ github.com/gorilla/mux v1.6.2/go.mod h1:1lud6UwP+6orDFRuTfBEV8e9/aOM/c4fVVCaMa2z
 github.com/gorilla/securecookie v1.1.1/go.mod h1:ra0sb63/xPlUeL+yeDciTfxMRAA+MP+HVt/4epWDjd4=
 github.com/jinzhu/copier v0.0.0-20180308034124-7e38e58719c3/go.mod h1:yL958EeXv8Ylng6IfnvG4oflryUi3vgA3xPs9hmII1s=
 github.com/lib/pq v1.0.0/go.mod h1:5WUZQaWbwv1U+lTReE5YruASi9Al49XbQIvNi/34Woo=
-github.com/modprox/mp v0.0.3 h1:0bVN3YPGWiRYm5gOdQK8slj1Hq4XBf8wctKBu1Mtqlw=
-github.com/modprox/mp v0.0.3/go.mod h1:OcYAxmKsY4565H72cVdkhZSh9jmAK1tjlrYAmfrWKFs=
-github.com/modprox/mp v0.0.4 h1:WJn8n0ANbfZG5JYpIbcO3OXuUdMSAWPrjOvJG9alDEw=
-github.com/modprox/mp v0.0.4/go.mod h1:OcYAxmKsY4565H72cVdkhZSh9jmAK1tjlrYAmfrWKFs=
 github.com/modprox/mp v0.0.5 h1:Pb+x8okiUV1Gzp8DDgAEbYUDlaugR/DB0YzUt728ewI=
 github.com/modprox/mp v0.0.5/go.mod h1:OcYAxmKsY4565H72cVdkhZSh9jmAK1tjlrYAmfrWKFs=
 github.com/pkg/errors v0.8.0 h1:WdK/asTD0HN+q6hsWO3/vpuAkAr+tw6aNJNDFFf0+qw=
