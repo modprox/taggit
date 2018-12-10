@@ -13,18 +13,18 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func newTool(t *testing.T) (*tool, *bytes.Buffer, *gittest.Cmd) {
+func newTestTool(t *testing.T) (*tool, *bytes.Buffer, *gittest.Cmd) {
 	var buf bytes.Buffer
 	gitCmd := &gittest.Cmd{}
 	publisher := publish.Discard()
-	tool := NewTool(&buf, gitCmd, publisher).(*tool)
+	tool := newTool(&buf, gitCmd, publisher).(*tool)
 	return tool, &buf, gitCmd
 }
 
 func Test_List(t *testing.T) {
 
 	try := func(in []tags.Tag, exp string) {
-		tool, buf, gitCmd := newTool(t)
+		tool, buf, gitCmd := newTestTool(t)
 		defer gitCmd.AssertExpectations(t)
 
 		err := tool.List(in)
@@ -47,7 +47,7 @@ func Test_List(t *testing.T) {
 }
 
 func Test_Zero_empty(t *testing.T) {
-	tool, buf, gitCmd := newTool(t)
+	tool, buf, gitCmd := newTestTool(t)
 	defer gitCmd.AssertExpectations(t)
 
 	gitCmd.On(
@@ -66,7 +66,7 @@ func Test_Zero_empty(t *testing.T) {
 }
 
 func Test_Zero_non_empty(t *testing.T) {
-	tool, buf, gitCmd := newTool(t)
+	tool, buf, gitCmd := newTestTool(t)
 	defer gitCmd.AssertExpectations(t)
 
 	err := tool.Zero([]tags.Tag{
@@ -77,7 +77,7 @@ func Test_Zero_non_empty(t *testing.T) {
 }
 
 func Test_Zero_failure(t *testing.T) {
-	tool, buf, gitCmd := newTool(t)
+	tool, buf, gitCmd := newTestTool(t)
 	defer gitCmd.AssertExpectations(t)
 
 	gitCmd.On(
@@ -98,7 +98,7 @@ func Test_Zero_failure(t *testing.T) {
 }
 
 func Test_Patch_empty(t *testing.T) {
-	tool, buf, gitCmd := newTool(t)
+	tool, buf, gitCmd := newTestTool(t)
 	defer gitCmd.AssertExpectations(t)
 
 	err := tool.Patch([]tags.Tag{})
@@ -107,7 +107,7 @@ func Test_Patch_empty(t *testing.T) {
 }
 
 func Test_Patch_non_empty(t *testing.T) {
-	tool, buf, gitCmd := newTool(t)
+	tool, buf, gitCmd := newTestTool(t)
 	defer gitCmd.AssertExpectations(t)
 
 	gitCmd.On(
@@ -133,7 +133,7 @@ func Test_Patch_non_empty(t *testing.T) {
 }
 
 func Test_Patch_failure(t *testing.T) {
-	tool, buf, gitCmd := newTool(t)
+	tool, buf, gitCmd := newTestTool(t)
 	defer gitCmd.AssertExpectations(t)
 
 	gitCmd.On(
@@ -161,7 +161,7 @@ func Test_Patch_failure(t *testing.T) {
 }
 
 func Test_Minor_empty(t *testing.T) {
-	tool, buf, gitCmd := newTool(t)
+	tool, buf, gitCmd := newTestTool(t)
 	defer gitCmd.AssertExpectations(t)
 
 	err := tool.Minor([]tags.Tag{})
@@ -170,7 +170,7 @@ func Test_Minor_empty(t *testing.T) {
 }
 
 func Test_Minor_non_empty(t *testing.T) {
-	tool, buf, gitCmd := newTool(t)
+	tool, buf, gitCmd := newTestTool(t)
 	defer gitCmd.AssertExpectations(t)
 
 	gitCmd.On(
@@ -196,7 +196,7 @@ func Test_Minor_non_empty(t *testing.T) {
 }
 
 func Test_Minor_failure(t *testing.T) {
-	tool, buf, gitCmd := newTool(t)
+	tool, buf, gitCmd := newTestTool(t)
 	defer gitCmd.AssertExpectations(t)
 
 	gitCmd.On(
@@ -224,7 +224,7 @@ func Test_Minor_failure(t *testing.T) {
 }
 
 func Test_Major_empty(t *testing.T) {
-	tool, buf, gitCmd := newTool(t)
+	tool, buf, gitCmd := newTestTool(t)
 	defer gitCmd.AssertExpectations(t)
 
 	err := tool.Major([]tags.Tag{})
@@ -233,7 +233,7 @@ func Test_Major_empty(t *testing.T) {
 }
 
 func Test_Major_non_empty(t *testing.T) {
-	tool, buf, gitCmd := newTool(t)
+	tool, buf, gitCmd := newTestTool(t)
 	defer gitCmd.AssertExpectations(t)
 
 	gitCmd.On(
@@ -259,7 +259,7 @@ func Test_Major_non_empty(t *testing.T) {
 }
 
 func Test_Major_failure(t *testing.T) {
-	tool, buf, gitCmd := newTool(t)
+	tool, buf, gitCmd := newTestTool(t)
 	defer gitCmd.AssertExpectations(t)
 
 	gitCmd.On(

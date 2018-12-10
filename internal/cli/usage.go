@@ -6,6 +6,6 @@ import (
 )
 
 func Usage(code int) {
-	fmt.Fprintf(os.Stderr, "usage: taggit [list, zero, patch, minor, major]\n")
+	fmt.Println("usage: taggit [list, zero, patch, minor, major]")
 	os.Exit(code)
 }

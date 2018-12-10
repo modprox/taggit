@@ -19,7 +19,7 @@ type Tool interface {
 	Major([]tags.Tag) error
 }
 
-func NewTool(
+func newTool(
 	output io.Writer,
 	gitCmd git.Cmd,
 	publisher publish.Publisher,
