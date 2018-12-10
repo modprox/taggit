@@ -13,7 +13,6 @@ import (
 	"github.com/modprox/mp/pkg/netservice"
 	"github.com/modprox/taggit/internal/git"
 	"github.com/modprox/taggit/internal/publish"
-	"github.com/modprox/taggit/tags"
 )
 
 const (
@@ -29,7 +28,7 @@ type starter struct {
 	publisher publish.Publisher
 	gitCmd    git.Cmd
 	cliTool   Tool
-	tags      []tags.Tag
+	tags      Groups
 }
 
 func New(args []string) (Starter, error) {
@@ -46,7 +45,12 @@ func New(args []string) (Starter, error) {
 
 	gitCmd := git.New("git")
 
-	repoTags, err := git.ListTags(gitCmd)
+	tagsFromGit, err := git.ListTags(gitCmd)
+	if err != nil {
+		return nil, err
+	}
+
+	tagsInGroups, err := Parse(tagsFromGit)
 	if err != nil {
 		return nil, err
 	}
@@ -56,13 +60,13 @@ func New(args []string) (Starter, error) {
 		publisher: publisher,
 		gitCmd:    gitCmd,
 		cliTool:   newTool(os.Stdout, gitCmd, publisher),
-		tags:      repoTags,
+		tags:      tagsInGroups,
 	}, nil
 }
 
 func (s *starter) Start() error {
 	var err error
-	switch s.args.firstCmd {
+	switch s.args.command {
 	case "help":
 		Usage(0)
 	case "list":
@@ -70,11 +74,11 @@ func (s *starter) Start() error {
 	case "zero":
 		err = s.cliTool.Zero(s.tags)
 	case "patch":
-		err = s.cliTool.Patch(s.tags) // , s.args.secondCmd)
+		err = s.cliTool.Patch(s.tags, s.args.extension)
 	case "minor":
-		err = s.cliTool.Minor(s.tags) // , s.args.secondCmd)
+		err = s.cliTool.Minor(s.tags, s.args.extension)
 	case "major":
-		err = s.cliTool.Major(s.tags) // , s.args.secondCmd)
+		err = s.cliTool.Major(s.tags, s.args.extension)
 	default:
 		Usage(1)
 	}
@@ -83,8 +87,8 @@ func (s *starter) Start() error {
 }
 
 type arguments struct {
-	firstCmd  string
-	secondCmd string
+	command   string
+	extension string
 }
 
 func parseArguments(args []string) (arguments, error) {
@@ -92,9 +96,15 @@ func parseArguments(args []string) (arguments, error) {
 		return arguments{}, errors.New("wrong number of arguments")
 	}
 
+	command := args[1]
+	extension := ""
+	if len(args) == 3 {
+		extension = args[2]
+	}
+
 	return arguments{
-		firstCmd:  args[1],
-		secondCmd: args[2],
+		command:   command,
+		extension: extension,
 	}, nil
 }
 

@@ -21,6 +21,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/shoenig/atomicfs v0.1.1/go.mod h1:aw1MEIbywlavaTMRvnai/OLCh2dV5XWNcNBYf6iLDno=
 github.com/shoenig/petrify/v4 v4.0.2/go.mod h1:xTXgxRisT/LPHgtw0yWpLdVJPyocAlhAPwTKktpm6f4=
+github.com/shoenig/regexplus v0.0.0 h1:W0WKqejqusK7HvXi8dgpsEwhq65AIoB/8oSODJxtv0s=
+github.com/shoenig/regexplus v0.0.0/go.mod h1:fWQjawpyxEMyLJgKeecQJcdk3zauAw5dyvFl+D23EPo=
 github.com/shoenig/toolkit v1.0.0 h1:bevOHX/3xqlV3AGTGkFSYu1a+v8bWMJAZ7kUEj1f7d4=
 github.com/shoenig/toolkit v1.0.0/go.mod h1:AzSCIBam5p35X6rgoLpLG/PDQPC6sMUr6nPz8zHWDNk=
 github.com/stretchr/objx v0.1.1 h1:2vfRuCMp5sSVIDSqO8oNnWJq7mPa6KVP3iPIwFBuy8A=

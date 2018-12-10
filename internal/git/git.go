@@ -2,8 +2,6 @@ package git
 
 import (
 	"fmt"
-	"sort"
-	"strings"
 	"time"
 
 	"github.com/modprox/taggit/tags"
@@ -11,25 +9,12 @@ import (
 )
 
 // newest version to oldest version
-func ListTags(cmd Cmd) ([]tags.Tag, error) {
+func ListTags(cmd Cmd) (string, error) {
 	output, err := cmd.Run([]string{"tag", "-l"}, 10*time.Second)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to list tags")
+		return "", errors.Wrap(err, "git failed to list tags")
 	}
-
-	lines := strings.Split(output, "\n")
-
-	parsedTags := make([]tags.Tag, 0, len(lines))
-	for _, line := range lines {
-		if tag, ok := tags.Parse(line); ok {
-			parsedTags = append(parsedTags, tag)
-		}
-	}
-
-	sortable := tags.BySemver(parsedTags)
-	sort.Sort(sort.Reverse(sortable))
-
-	return parsedTags, nil
+	return output, nil
 }
 
 func CreateTag(cmd Cmd, tag tags.Tag) error {
