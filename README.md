@@ -73,3 +73,61 @@ taggit: created tag: v0.0.3-beta1
 taggit: published tag: v0.0.3-beta1
 ```
 
+#### minor
+Use `minor` to increment the minor level of the current latest version.
+```
+$ taggit list
+v0.0.0 ✓ | v0.0.0
+v0.0.1 ✓ | v0.0.1
+v0.0.2 ✓ | v0.0.2 v0.0.2-alpha1
+v0.0.3 ✓ | v0.0.3 v0.0.3-beta1 
+$ taggit minor
+taggit: creating tag: v0.1.0
+taggit: created tag: v0.1.0
+taggit: published tag: v0.1.0
+```
+If the latest tag happens to be a pre-release version, the minor version is not incremented. Instead, a tag with no pre-release extension is published at that tag minor level.
+```
+[p1 bar (master)] $ taggit list
+v0.0.0 ✓ | v0.0.0
+v0.1.0 ✓ | v0.1.0
+v0.2.0 ✓ | v0.2.0 v0.2.0-beta1
+v0.3.0   | v0.3.0-rc-2 v0.3.0-rc-1
+[p1 bar (master)] $ taggit minor
+taggit: creating tag: v0.3.0
+taggit: created tag: v0.3.0
+taggit: published tag: v0.3.0
+```
+To publish a pre-release version, provide the pre-release version as an argument to the `minor` command.
+```
+$ taggit minor beta1
+taggit: creating tag: v0.4.0-beta1
+taggit: created tag: v0.4.0-beta1
+taggit: published tag: v0.4.0-beta1
+```
+
+#### major
+Use `major` to increment the major level of the current latest version.
+```
+$ taggit major
+taggit: creating tag: v1.0.0
+taggit: created tag: v1.0.0
+taggit: published tag: v1.0.0
+```
+If the latest tag happens to be a pre-release version, the major version is not incremented. Instead, a tag with no pre-release extension is published at that tag major level.
+```
+$ taggit list
+v1.0.0 ✓ | v1.0.0
+v2.0.0   | v2.0.0-rc1 
+$ taggit major
+taggit: creating tag: v2.0.0
+taggit: created tag: v2.0.0
+taggit: published tag: v2.0.0
+```
+To publish a pre-release version, provide the pre-release version as an argument to the `major` command.
+```
+$ taggit major rc1
+taggit: creating tag: v2.0.0-rc1
+taggit: created tag: v2.0.0-rc1
+taggit: published tag: v2.0.0-rc1
+```
