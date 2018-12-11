@@ -20,10 +20,10 @@ func Test_ListTags_empty(t *testing.T) {
 		10*time.Second,
 	).Return("", nil).Once()
 
-	repoTags, err := ListTags(cmd)
+	tagsContent, err := ListTags(cmd)
 	require.NoError(t, err)
 
-	require.Equal(t, []tags.Tag{}, repoTags)
+	require.Equal(t, "", tagsContent)
 }
 
 func Test_ListTags_non_empty(t *testing.T) {
@@ -36,13 +36,10 @@ func Test_ListTags_non_empty(t *testing.T) {
 		10*time.Second,
 	).Return("v0.2.0\nv1.1.2\n", nil).Once()
 
-	repoTags, err := ListTags(cmd)
+	tagsContent, err := ListTags(cmd)
 	require.NoError(t, err)
 
-	require.Equal(t, []tags.Tag{
-		tags.New(1, 1, 2),
-		tags.New(0, 2, 0),
-	}, repoTags)
+	require.Equal(t, "v0.2.0\nv1.1.2\n", tagsContent)
 }
 
 func Test_ListTags_failed(t *testing.T) {
