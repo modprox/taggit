@@ -1,13 +1,13 @@
-package updates
+#!/usr/bin/env bash
 
-// make taggit do this
-// but with prettier output
+set -euo pipefail
 
-/*
+if [[ "${1} ${2} ${3} ${4}" != "list -u -m all" ]]; then
+    echo 'expected "list -u -m all"'
+    exit 1
+fi
 
-$ go list -m -u all
-go: finding golang.org/x/sys latest
-go: finding github.com/jinzhu/copier latest
+cat <<'EOF'
 github.com/modprox/taggit
 github.com/boltdb/bolt v1.3.1
 github.com/cactus/go-statsd-client v3.1.1+incompatible
@@ -30,5 +30,6 @@ github.com/stretchr/objx v0.1.1
 github.com/stretchr/testify v1.2.2
 golang.org/x/sys v0.0.0-20180909124046-d0be0721c37e [v0.0.0-20181217223516-dcdaa6325bcb]
 google.golang.org/appengine v1.1.0 [v1.3.0]
+EOF
 
-*/
+exit 0

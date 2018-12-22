@@ -36,8 +36,8 @@ func (c *cmd) Run(args []string, timeout time.Duration) (string, error) {
 	cmd.Env = os.Environ() // use the tty's environment
 	bs, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "subprocess command failed: %v\n", err)
-		fmt.Fprintf(os.Stderr, "output: %s\n", string(bs))
+		_, _ = fmt.Fprintf(os.Stderr, "subprocess command failed: %v\n", err)
+		_, _ = fmt.Fprintf(os.Stderr, "output: %s\n", string(bs))
 		return "", errors.Wrap(err, "subprocess exec failed")
 	}
 	return string(bs), nil

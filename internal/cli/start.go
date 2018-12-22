@@ -71,6 +71,8 @@ func (s *starter) Start() error {
 		Usage(0)
 	case "list":
 		err = s.cliTool.List(s.tags)
+	case "updates":
+		err = s.cliTool.Updates(s.args.extension)
 	case "zero":
 		err = s.cliTool.Zero(s.tags)
 	case "patch":

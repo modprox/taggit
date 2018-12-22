@@ -5,6 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"time"
+
+	"github.com/modprox/taggit/internal/updates"
 
 	"github.com/modprox/taggit/internal/git"
 	"github.com/modprox/taggit/internal/publish"
@@ -13,6 +16,7 @@ import (
 
 type Tool interface {
 	List(Groups) error
+	Updates(string) error
 	Zero(Groups) error
 	Patch(Groups, string) error
 	Minor(Groups, string) error
@@ -70,6 +74,23 @@ func (t *tool) List(repoTags Groups) error {
 
 	_, err := t.output.Write(b.Bytes())
 	return err
+}
+
+func (t *tool) Updates(extension string) error {
+	lister := updates.NewLister(updates.Options{
+		Timeout: 10 * time.Second,
+	})
+
+	available, err := lister.List()
+	if err != nil {
+		return err
+	}
+
+	for _, up := range available {
+		_ = t.write(up.String() + "\n")
+	}
+
+	return nil
 }
 
 func (t *tool) Zero(repoTags Groups) error {
