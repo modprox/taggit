@@ -2,8 +2,9 @@
 
 set -euo pipefail
 
-if [[ "${1} ${2} ${3} ${4}" != "list -u -m all" ]]; then
-    echo 'expected "list -u -m all"'
+args="${1} ${2} ${3} ${4}"
+if [[ "${args}" != "list -m -u all" ]]; then
+    echo 'expected "list -m -u all"'
     exit 1
 fi
 

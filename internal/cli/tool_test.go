@@ -58,6 +58,10 @@ func Test_List(t *testing.T) {
 	try(tagsThreeMix, "v1.1.1   | v1.1.1-beta4 v1.1.1-beta3\nv1.1.2 ✓ | v1.1.2\n")
 }
 
+func Test_Updates(t *testing.T) {
+	t.SkipNow()
+}
+
 func tryParse(t *testing.T, in string) Groups {
 	groups, err := Parse(in)
 	require.NoError(t, err)

@@ -7,7 +7,8 @@ type Lister interface {
 }
 
 type Options struct {
-	Timeout time.Duration
+	Timeout    time.Duration
+	Executable string // go command
 }
 
 func NewLister(options Options) Lister {
@@ -15,8 +16,14 @@ func NewLister(options Options) Lister {
 	if timeout == 0 {
 		timeout = 1 * time.Minute
 	}
+
+	executable := options.Executable
+	if executable == "" {
+		executable = "go"
+	}
+
 	return &lister{
-		command: newCmd("go"), // use "go" on $PATH
+		command: newCmd(executable),
 		timeout: timeout,
 	}
 }

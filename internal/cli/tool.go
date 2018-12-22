@@ -87,7 +87,10 @@ func (t *tool) Updates(extension string) error {
 	}
 
 	for _, up := range available {
-		_ = t.write(up.String() + "\n")
+		_ = t.write(up.Package)
+		_ = t.write("\n  --- ")
+		_ = t.write(up.Old + " => " + up.New)
+		_ = t.write("\n")
 	}
 
 	return nil
