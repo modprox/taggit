@@ -2,15 +2,15 @@ package cli
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"io"
 	"time"
 
-	"github.com/modprox/taggit/internal/updates"
+	"github.com/pkg/errors"
 
 	"github.com/modprox/taggit/internal/git"
 	"github.com/modprox/taggit/internal/publish"
+	"github.com/modprox/taggit/internal/updates"
 	"github.com/modprox/taggit/tags"
 )
 
@@ -78,22 +78,36 @@ func (t *tool) List(repoTags Groups) error {
 
 func (t *tool) Updates(extension string) error {
 	lister := updates.NewLister(updates.Options{
-		Timeout: 10 * time.Second,
+		Timeout: 3 * time.Minute,
 	})
 
+	if extension == "apply" {
+		// todo: implement updating the go.mod file
+		return t.showUpdates(lister)
+	} else if extension != "" {
+		return errors.Errorf("unknown subcommand %q", extension)
+	}
+
+	return t.showUpdates(lister)
+}
+
+func (t *tool) showUpdates(lister updates.Lister) error {
 	available, err := lister.List()
 	if err != nil {
 		return err
 	}
 
 	for _, up := range available {
-		_ = t.write(up.Package)
-		_ = t.write("\n  --- ")
-		_ = t.write(up.Old + " => " + up.New)
-		_ = t.write("\n")
+		fmt.Println(up.Package)
+		fmt.Print(" ∟ ")
+		fmt.Println(up.Old + " » " + up.New + "\n")
 	}
 
 	return nil
+}
+
+func (t *tool) applyUpdates(lister updates.Lister) error {
+	return errors.New("not implemented yet")
 }
 
 func (t *tool) Zero(repoTags Groups) error {
