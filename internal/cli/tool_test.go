@@ -2,18 +2,20 @@ package cli
 
 import (
 	"bytes"
-	"errors"
 	"testing"
 	"time"
 
-	"github.com/modprox/taggit/internal/git/gittest"
+	"github.com/modprox/taggit/internal/git"
 	"github.com/modprox/taggit/internal/publish"
+
+	"github.com/pkg/errors"
+
 	"github.com/stretchr/testify/require"
 )
 
-func newTestTool() (*tool, *bytes.Buffer, *gittest.Cmd) {
+func newTestTool(t *testing.T) (*tool, *bytes.Buffer, *git.CmdMock) {
 	var buf bytes.Buffer
-	gitCmd := &gittest.Cmd{}
+	gitCmd := git.NewCmdMock(t)
 	publisher := publish.Discard()
 	tool := newTool(&buf, gitCmd, publisher).(*tool)
 	return tool, &buf, gitCmd
@@ -30,8 +32,8 @@ const (
 func Test_List(t *testing.T) {
 
 	try := func(in string, exp string) {
-		tool, buf, gitCmd := newTestTool()
-		defer gitCmd.AssertExpectations(t)
+		tool, buf, gitCmd := newTestTool(t)
+		defer gitCmd.MinimockFinish()
 
 		groups, err := Parse(in)
 		require.NoError(t, err)
@@ -64,19 +66,26 @@ func tryParse(t *testing.T, in string) Groups {
 	return groups
 }
 
+const (
+	timeout3S = 3 * time.Second
+	timeout1M = 1 * time.Minute
+)
+
 func Test_Zero_empty(t *testing.T) {
-	tool, buf, gitCmd := newTestTool()
-	defer gitCmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTestTool(t)
+	defer gitCmd.MinimockFinish()
 
-	gitCmd.On(
-		"Run",
-		[]string{"tag", "v0.0.0"},
-		3*time.Second).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"tag", "v0.0.0"}, timeout3S,
+	).Then(
+		"", nil,
+	)
 
-	gitCmd.On(
-		"Run",
-		[]string{"push", "origin", "v0.0.0"},
-		1*time.Minute).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"push", "origin", "v0.0.0"}, timeout1M,
+	).Then(
+		"", nil,
+	)
 
 	groups := tryParse(t, tagsEmpty)
 	err := tool.Zero(groups)
@@ -85,8 +94,8 @@ func Test_Zero_empty(t *testing.T) {
 }
 
 func Test_Zero_non_empty(t *testing.T) {
-	tool, buf, gitCmd := newTestTool()
-	defer gitCmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTestTool(t)
+	defer gitCmd.MinimockFinish()
 
 	groups := tryParse(t, tagsOne)
 	err := tool.Zero(groups)
@@ -95,20 +104,20 @@ func Test_Zero_non_empty(t *testing.T) {
 }
 
 func Test_Zero_failure(t *testing.T) {
-	tool, buf, gitCmd := newTestTool()
-	defer gitCmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTestTool(t)
+	defer gitCmd.MinimockFinish()
 
-	gitCmd.On(
-		"Run",
-		[]string{"tag", "v0.0.0"},
-		3*time.Second).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"tag", "v0.0.0"}, timeout3S,
+	).Then(
+		"", nil,
+	)
 
-	gitCmd.On(
-		"Run",
-		[]string{"push", "origin", "v0.0.0"},
-		1*time.Minute).Return(
+	gitCmd.RunMock.When(
+		[]string{"push", "origin", "v0.0.0"}, timeout1M,
+	).Then(
 		"", errors.New("git is broken"),
-	).Once()
+	)
 
 	groups := tryParse(t, tagsEmpty)
 
@@ -118,8 +127,8 @@ func Test_Zero_failure(t *testing.T) {
 }
 
 func Test_Patch_empty(t *testing.T) {
-	tool, buf, gitCmd := newTestTool()
-	defer gitCmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTestTool(t)
+	defer gitCmd.MinimockFinish()
 
 	groups := tryParse(t, tagsEmpty)
 
@@ -129,20 +138,16 @@ func Test_Patch_empty(t *testing.T) {
 }
 
 func Test_Patch_non_empty(t *testing.T) {
-	tool, buf, gitCmd := newTestTool()
-	defer gitCmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTestTool(t)
+	defer gitCmd.MinimockFinish()
 
-	gitCmd.On(
-		"Run",
-		[]string{"tag", "v2.1.5"},
-		3*time.Second,
-	).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"tag", "v2.1.5"}, timeout3S,
+	).Then("", nil)
 
-	gitCmd.On(
-		"Run",
-		[]string{"push", "origin", "v2.1.5"},
-		1*time.Minute,
-	).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"push", "origin", "v2.1.5"}, timeout1M,
+	).Then("", nil)
 
 	groups := tryParse(t, "v2.1.4\nv2.0.0\nv1.2.3\n")
 
@@ -153,20 +158,16 @@ func Test_Patch_non_empty(t *testing.T) {
 }
 
 func Test_Patch_extended(t *testing.T) {
-	tool, buf, gitCmd := newTestTool()
-	defer gitCmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTestTool(t)
+	defer gitCmd.MinimockFinish()
 
-	gitCmd.On(
-		"Run",
-		[]string{"tag", "v2.1.5-alpha1"},
-		3*time.Second,
-	).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"tag", "v2.1.5-alpha1"}, timeout3S,
+	).Then("", nil)
 
-	gitCmd.On(
-		"Run",
-		[]string{"push", "origin", "v2.1.5-alpha1"},
-		1*time.Minute,
-	).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"push", "origin", "v2.1.5-alpha1"}, timeout1M,
+	).Then("", nil)
 
 	groups := tryParse(t, "v2.1.4\nv2.0.0\nv1.2.3\n")
 
@@ -177,20 +178,16 @@ func Test_Patch_extended(t *testing.T) {
 }
 
 func Test_Patch_promote(t *testing.T) {
-	tool, buf, gitCmd := newTestTool()
-	defer gitCmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTestTool(t)
+	defer gitCmd.MinimockFinish()
 
-	gitCmd.On(
-		"Run",
-		[]string{"tag", "v2.1.5"},
-		3*time.Second,
-	).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"tag", "v2.1.5"}, timeout3S,
+	).Then("", nil)
 
-	gitCmd.On(
-		"Run",
-		[]string{"push", "origin", "v2.1.5"},
-		1*time.Minute,
-	).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"push", "origin", "v2.1.5"}, timeout1M,
+	).Then("", nil)
 
 	// v2.1.5-alpha3 incurs promotion of 2.1.5 base
 	groups := tryParse(t, "v2.1.5-alpha3\nv2.1.5-alpha2\nv2.1.4\n")
@@ -202,22 +199,17 @@ func Test_Patch_promote(t *testing.T) {
 }
 
 func Test_Patch_failure(t *testing.T) {
-	tool, buf, gitCmd := newTestTool()
-	defer gitCmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTestTool(t)
+	defer gitCmd.MinimockFinish()
 
-	gitCmd.On(
-		"Run",
+	gitCmd.RunMock.When(
 		[]string{"tag", "v2.1.5"},
-		3*time.Second,
-	).Return("", nil).Once()
+		timeout3S,
+	).Then("", nil)
 
-	gitCmd.On(
-		"Run",
-		[]string{"push", "origin", "v2.1.5"},
-		1*time.Minute,
-	).Return(
-		"", errors.New("git is broken"),
-	).Once()
+	gitCmd.RunMock.When(
+		[]string{"push", "origin", "v2.1.5"}, timeout1M,
+	).Then("", errors.New("git is broken"))
 
 	groups := tryParse(t, "v2.1.4\nv2.0.0\nv1.2.3\n")
 
@@ -228,8 +220,8 @@ func Test_Patch_failure(t *testing.T) {
 }
 
 func Test_Minor_empty(t *testing.T) {
-	tool, buf, gitCmd := newTestTool()
-	defer gitCmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTestTool(t)
+	defer gitCmd.MinimockFinish()
 
 	groups := tryParse(t, tagsEmpty)
 
@@ -239,20 +231,16 @@ func Test_Minor_empty(t *testing.T) {
 }
 
 func Test_Minor_non_empty(t *testing.T) {
-	tool, buf, gitCmd := newTestTool()
-	defer gitCmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTestTool(t)
+	defer gitCmd.MinimockFinish()
 
-	gitCmd.On(
-		"Run",
-		[]string{"tag", "v2.2.0"},
-		3*time.Second,
-	).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"tag", "v2.2.0"}, timeout3S,
+	).Then("", nil)
 
-	gitCmd.On(
-		"Run",
-		[]string{"push", "origin", "v2.2.0"},
-		1*time.Minute,
-	).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"push", "origin", "v2.2.0"}, timeout1M,
+	).Then("", nil)
 
 	groups := tryParse(t, "v2.1.4\nv2.0.0\nv1.2.3\n")
 
@@ -263,20 +251,16 @@ func Test_Minor_non_empty(t *testing.T) {
 }
 
 func Test_Minor_extended(t *testing.T) {
-	tool, buf, gitCmd := newTestTool()
-	defer gitCmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTestTool(t)
+	defer gitCmd.MinimockFinish()
 
-	gitCmd.On(
-		"Run",
-		[]string{"tag", "v2.2.0-beta2"},
-		3*time.Second,
-	).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"tag", "v2.2.0-beta2"}, timeout3S,
+	).Then("", nil)
 
-	gitCmd.On(
-		"Run",
-		[]string{"push", "origin", "v2.2.0-beta2"},
-		1*time.Minute,
-	).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"push", "origin", "v2.2.0-beta2"}, timeout1M,
+	).Then("", nil)
 
 	groups := tryParse(t, "v2.1.4\nv2.0.0\nv1.2.3\n")
 
@@ -287,20 +271,16 @@ func Test_Minor_extended(t *testing.T) {
 }
 
 func Test_Minor_promote(t *testing.T) {
-	tool, buf, gitCmd := newTestTool()
-	defer gitCmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTestTool(t)
+	defer gitCmd.MinimockFinish()
 
-	gitCmd.On(
-		"Run",
-		[]string{"tag", "v2.2.0"},
-		3*time.Second,
-	).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"tag", "v2.2.0"}, timeout3S,
+	).Then("", nil)
 
-	gitCmd.On(
-		"Run",
-		[]string{"push", "origin", "v2.2.0"},
-		1*time.Minute,
-	).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"push", "origin", "v2.2.0"}, timeout1M,
+	).Then("", nil)
 
 	// v2.2.0-beta incurs promotion of v2.2.0 base
 	groups := tryParse(t, "v2.2.0-beta\nv2.2.0-alpha2\nv2.2.0-alpha1\n")
@@ -312,22 +292,16 @@ func Test_Minor_promote(t *testing.T) {
 }
 
 func Test_Minor_failure(t *testing.T) {
-	tool, buf, gitCmd := newTestTool()
-	defer gitCmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTestTool(t)
+	defer gitCmd.MinimockFinish()
 
-	gitCmd.On(
-		"Run",
-		[]string{"tag", "v2.2.0"},
-		3*time.Second,
-	).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"tag", "v2.2.0"}, timeout3S,
+	).Then("", nil)
 
-	gitCmd.On(
-		"Run",
-		[]string{"push", "origin", "v2.2.0"},
-		1*time.Minute,
-	).Return(
-		"", errors.New("git is broken"),
-	).Once()
+	gitCmd.RunMock.When(
+		[]string{"push", "origin", "v2.2.0"}, timeout1M,
+	).Then("", errors.New("git is broken"))
 
 	groups := tryParse(t, "v2.1.4\nv2.0.0\nv1.2.3\n")
 
@@ -338,8 +312,8 @@ func Test_Minor_failure(t *testing.T) {
 }
 
 func Test_Major_empty(t *testing.T) {
-	tool, buf, gitCmd := newTestTool()
-	defer gitCmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTestTool(t)
+	defer gitCmd.MinimockFinish()
 
 	groups := tryParse(t, tagsEmpty)
 
@@ -349,20 +323,16 @@ func Test_Major_empty(t *testing.T) {
 }
 
 func Test_Major_non_empty(t *testing.T) {
-	tool, buf, gitCmd := newTestTool()
-	defer gitCmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTestTool(t)
+	defer gitCmd.MinimockFinish()
 
-	gitCmd.On(
-		"Run",
-		[]string{"tag", "v3.0.0"},
-		3*time.Second,
-	).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"tag", "v3.0.0"}, timeout3S,
+	).Then("", nil)
 
-	gitCmd.On(
-		"Run",
-		[]string{"push", "origin", "v3.0.0"},
-		1*time.Minute,
-	).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"push", "origin", "v3.0.0"}, timeout1M,
+	).Then("", nil)
 
 	groups := tryParse(t, "v2.1.4\nv2.0.0\nv1.2.3\n")
 
@@ -373,20 +343,16 @@ func Test_Major_non_empty(t *testing.T) {
 }
 
 func Test_Major_extended(t *testing.T) {
-	tool, buf, gitCmd := newTestTool()
-	defer gitCmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTestTool(t)
+	defer gitCmd.MinimockFinish()
 
-	gitCmd.On(
-		"Run",
-		[]string{"tag", "v3.0.0-rc1"},
-		3*time.Second,
-	).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"tag", "v3.0.0-rc1"}, timeout3S,
+	).Then("", nil)
 
-	gitCmd.On(
-		"Run",
-		[]string{"push", "origin", "v3.0.0-rc1"},
-		1*time.Minute,
-	).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"push", "origin", "v3.0.0-rc1"}, timeout1M,
+	).Then("", nil)
 
 	groups := tryParse(t, "v2.1.4\nv2.0.0\nv1.2.3\n")
 
@@ -397,20 +363,16 @@ func Test_Major_extended(t *testing.T) {
 }
 
 func Test_Major_promotion(t *testing.T) {
-	tool, buf, gitCmd := newTestTool()
-	defer gitCmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTestTool(t)
+	defer gitCmd.MinimockFinish()
 
-	gitCmd.On(
-		"Run",
-		[]string{"tag", "v3.0.0"},
-		3*time.Second,
-	).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"tag", "v3.0.0"}, timeout3S,
+	).Then("", nil)
 
-	gitCmd.On(
-		"Run",
-		[]string{"push", "origin", "v3.0.0"},
-		1*time.Minute,
-	).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"push", "origin", "v3.0.0"}, timeout1M,
+	).Then("", nil)
 
 	groups := tryParse(t, "v3.0.0-rc2\nv3.0.0-rc1\nv3.0.0-beta3\nv2.0.0\nv1.2.3\n")
 
@@ -421,22 +383,16 @@ func Test_Major_promotion(t *testing.T) {
 }
 
 func Test_Major_failure(t *testing.T) {
-	tool, buf, gitCmd := newTestTool()
-	defer gitCmd.AssertExpectations(t)
+	tool, buf, gitCmd := newTestTool(t)
+	defer gitCmd.MinimockFinish()
 
-	gitCmd.On(
-		"Run",
-		[]string{"tag", "v3.0.0"},
-		3*time.Second,
-	).Return("", nil).Once()
+	gitCmd.RunMock.When(
+		[]string{"tag", "v3.0.0"}, timeout3S,
+	).Then("", nil)
 
-	gitCmd.On(
-		"Run",
-		[]string{"push", "origin", "v3.0.0"},
-		1*time.Minute,
-	).Return(
-		"", errors.New("git is broken"),
-	).Once()
+	gitCmd.RunMock.When(
+		[]string{"push", "origin", "v3.0.0"}, timeout1M,
+	).Then("", errors.New("git is broken"))
 
 	groups := tryParse(t, "v2.1.4\nv2.0.0\nv1.2.3\n")
 

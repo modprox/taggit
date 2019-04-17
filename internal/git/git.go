@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/modprox/taggit/tags"
+
 	"github.com/pkg/errors"
 )
 
