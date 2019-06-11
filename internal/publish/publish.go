@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 
-	"github.com/modprox/mp/pkg/clients/registry"
-	"github.com/modprox/mp/pkg/coordinates"
+	"oss.indeed.com/go/modprox/pkg/clients/registry"
+	"oss.indeed.com/go/modprox/pkg/coordinates"
 )
 
 const (

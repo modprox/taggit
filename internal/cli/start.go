@@ -6,12 +6,11 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/modprox/mp/pkg/clients/registry"
-	"github.com/modprox/mp/pkg/loggy"
-	"github.com/modprox/mp/pkg/netservice"
-
 	"github.com/pkg/errors"
 
+	"oss.indeed.com/go/modprox/pkg/clients/registry"
+	"oss.indeed.com/go/modprox/pkg/loggy"
+	"oss.indeed.com/go/modprox/pkg/netservice"
 	"oss.indeed.com/go/taggit/internal/git"
 	"oss.indeed.com/go/taggit/internal/publish"
 )
