@@ -1,4 +1,4 @@
-package tags
+package tags // import "oss.indeed.com/go/taggit/tags"
 
 import (
 	"fmt"
