@@ -5,12 +5,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/modprox/taggit/internal/git"
-	"github.com/modprox/taggit/internal/publish"
-
 	"github.com/pkg/errors"
 
 	"github.com/stretchr/testify/require"
+
+	"oss.indeed.com/go/taggit/internal/git"
+	"oss.indeed.com/go/taggit/internal/publish"
 )
 
 func newTestTool(t *testing.T) (*tool, *bytes.Buffer, *git.CmdMock) {

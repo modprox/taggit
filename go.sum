@@ -12,8 +12,8 @@ github.com/go-stack/stack v1.8.0/go.mod h1:v0f6uXyyMGvRgIKkXu+yp6POWl0qKG85gN/me
 github.com/gogo/protobuf v1.1.1/go.mod h1:r8qH/GZQm5c6nD/R0oafs1akxWv10x8SbQlK7atdtwQ=
 github.com/gojuno/generator v0.0.0-20180725114326-487ec858da35/go.mod h1:4IWfQdtkCP4cdnSO6aQTW1nS7jK6xGuhbZveVkPPFRg=
 github.com/gojuno/minimock v0.0.0-20190130082935-96af809257c4/go.mod h1:iOiCj/XdRZn6P5/TzsbuF4SR+wPrvHs+nxZoFXuykfk=
-github.com/gojuno/minimock v2.1.5 h1:J4W/PRZmgT9OanuZAjbvNmOOV6aEJb6/UoQXGcLThpo=
-github.com/gojuno/minimock v2.1.5/go.mod h1:o4hFQ9H73J/q5j1tDX9qVrZFT8/Y5J+hUS70dsduKzM=
+github.com/gojuno/minimock v2.1.5+incompatible h1:nEHzmNaNvllrPZJhWT8pXTJX//5Lt0JxGH9LLlSwH3w=
+github.com/gojuno/minimock v2.1.5+incompatible/go.mod h1:o4hFQ9H73J/q5j1tDX9qVrZFT8/Y5J+hUS70dsduKzM=
 github.com/golang/protobuf v1.2.0/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
 github.com/gorilla/context v1.1.1/go.mod h1:kBGZzfjB9CEq2AlWe17Uuf7NDRt0dE0s8S51q0aT7Yg=
 github.com/gorilla/csrf v1.5.1/go.mod h1:HTDW7xFOO1aHddQUmghe9/2zTvg7AYCnRCs7MxTGu/0=
@@ -30,6 +30,7 @@ github.com/marwan-at-work/vgop v0.0.0-20180824202541-054e5a7d7b48/go.mod h1:8stA
 github.com/matttproud/golang_protobuf_extensions v1.0.1/go.mod h1:D8He9yQNgCq6Z5Ld7szi9bcBfOoFv/3dc6xSMkL2PC0=
 github.com/modprox/mp v0.1.0 h1:If3oO+cqf3aIItGzmQYGdk/v+b3OXe/AGmZfdizVnHw=
 github.com/modprox/mp v0.1.0/go.mod h1:/3kh0cip8+RaC+MWpsGA0Uc5erpUpcQScGwhyM+3cCk=
+github.com/modprox/taggit v0.1.0 h1:cThB6iEtWz561gVclkIDRkZTOk497HQ1ZlNf5KmeDjU=
 github.com/modprox/taggit v0.1.0/go.mod h1:gJQyAih5tLhpAyJd6sxk+zWSTzHYQQeqFUnoq85LNDs=
 github.com/mwitkow/go-conntrack v0.0.0-20161129095857-cc309e4a2223/go.mod h1:qRWi+5nqEBWmkhHvq77mSJWrCKwh8bxhgT7d/eI7P4U=
 github.com/opentracing/opentracing-go v1.0.2/go.mod h1:UkNAQd3GIcIGf0SeVgPpRdFStlNbqXla1AfSYxPUl2o=

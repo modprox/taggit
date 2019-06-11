@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/modprox/taggit/internal/cli"
+	"oss.indeed.com/go/taggit/internal/cli"
 )
 
 func main() {

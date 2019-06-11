@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/modprox/taggit/tags"
-
 	"github.com/pkg/errors"
+
+	"oss.indeed.com/go/taggit/tags"
 )
 
 // newest version to oldest version

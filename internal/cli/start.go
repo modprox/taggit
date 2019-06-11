@@ -9,10 +9,11 @@ import (
 	"github.com/modprox/mp/pkg/clients/registry"
 	"github.com/modprox/mp/pkg/loggy"
 	"github.com/modprox/mp/pkg/netservice"
-	"github.com/modprox/taggit/internal/git"
-	"github.com/modprox/taggit/internal/publish"
 
 	"github.com/pkg/errors"
+
+	"oss.indeed.com/go/taggit/internal/git"
+	"oss.indeed.com/go/taggit/internal/publish"
 )
 
 const (

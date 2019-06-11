@@ -47,7 +47,7 @@ func (m *modFinder) lookIn(path string) (string, error) {
 }
 
 // e.g. module file
-// module github.com/modprox/taggit
+// module oss.indeed.com/go/taggit
 
 var (
 	moduleRe = regexp.MustCompile(`module[\s]+([\S]+)`)

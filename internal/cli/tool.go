@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/modprox/taggit/internal/git"
-	"github.com/modprox/taggit/internal/publish"
-	"github.com/modprox/taggit/tags"
+	"oss.indeed.com/go/taggit/internal/git"
+	"oss.indeed.com/go/taggit/internal/publish"
+	"oss.indeed.com/go/taggit/tags"
 )
 
 type Tool interface {

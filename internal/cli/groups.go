@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/modprox/taggit/tags"
+	"oss.indeed.com/go/taggit/tags"
 )
 
 // A Group of tags is all of the tags associated with

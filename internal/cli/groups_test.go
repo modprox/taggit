@@ -3,9 +3,9 @@ package cli
 import (
 	"testing"
 
-	"github.com/modprox/taggit/tags"
-
 	"github.com/stretchr/testify/require"
+
+	"oss.indeed.com/go/taggit/tags"
 )
 
 const sampleTags = `
