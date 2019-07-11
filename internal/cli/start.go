@@ -8,8 +8,9 @@ import (
 
 	"github.com/pkg/errors"
 
+	"go.gophers.dev/pkgs/loggy"
+
 	"oss.indeed.com/go/modprox/pkg/clients/registry"
-	"oss.indeed.com/go/modprox/pkg/loggy"
 	"oss.indeed.com/go/modprox/pkg/netservice"
 	"oss.indeed.com/go/taggit/internal/git"
 	"oss.indeed.com/go/taggit/internal/publish"

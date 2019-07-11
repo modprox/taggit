@@ -4,7 +4,7 @@ go:
   - 1.12.x
 
 install:
-  - go get github.com/gojuno/minimock/cmd/minimock
+  - echo "no install step"
 
 script:
   - go generate ./...

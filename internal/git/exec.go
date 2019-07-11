@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-//go:generate minimock -g -i Cmd -s _mock.go
+//go:generate go run github.com/gojuno/minimock/cmd/minimock -g -i Cmd -s _mock.go
 
 // An Cmd executes git commands.
 type Cmd interface {
@@ -36,8 +36,8 @@ func (c *cmd) Run(args []string, timeout time.Duration) (string, error) {
 	cmd.Env = os.Environ() // use the tty's environment
 	bs, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "subprocess command failed: %v\n", err)
-		fmt.Fprintf(os.Stderr, "output: %s\n", string(bs))
+		_, _ = fmt.Fprintf(os.Stderr, "subprocess command failed: %v\n", err)
+		_, _ = fmt.Fprintf(os.Stderr, "output: %s\n", string(bs))
 		return "", errors.Wrap(err, "subprocess exec failed")
 	}
 	return string(bs), nil
