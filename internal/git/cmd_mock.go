@@ -16,6 +16,7 @@ type CmdMock struct {
 	t minimock.Tester
 
 	funcRun          func(args []string, timeout time.Duration) (s1 string, err error)
+	inspectFuncRun   func(args []string, timeout time.Duration)
 	afterRunCounter  uint64
 	beforeRunCounter uint64
 	RunMock          mCmdMockRun
@@ -83,6 +84,17 @@ func (mmRun *mCmdMockRun) Expect(args []string, timeout time.Duration) *mCmdMock
 	return mmRun
 }
 
+// Inspect accepts an inspector function that has same arguments as the Cmd.Run
+func (mmRun *mCmdMockRun) Inspect(f func(args []string, timeout time.Duration)) *mCmdMockRun {
+	if mmRun.mock.inspectFuncRun != nil {
+		mmRun.mock.t.Fatalf("Inspect function is already set for CmdMock.Run")
+	}
+
+	mmRun.mock.inspectFuncRun = f
+
+	return mmRun
+}
+
 // Return sets up results that will be returned by Cmd.Run
 func (mmRun *mCmdMockRun) Return(s1 string, err error) *CmdMock {
 	if mmRun.mock.funcRun != nil {
@@ -135,6 +147,10 @@ func (e *CmdMockRunExpectation) Then(s1 string, err error) *CmdMock {
 func (mmRun *CmdMock) Run(args []string, timeout time.Duration) (s1 string, err error) {
 	mm_atomic.AddUint64(&mmRun.beforeRunCounter, 1)
 	defer mm_atomic.AddUint64(&mmRun.afterRunCounter, 1)
+
+	if mmRun.inspectFuncRun != nil {
+		mmRun.inspectFuncRun(args, timeout)
+	}
 
 	params := &CmdMockRunParams{args, timeout}
 

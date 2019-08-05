@@ -15,6 +15,7 @@ type PublisherMock struct {
 	t minimock.Tester
 
 	funcPublish          func(version string) (err error)
+	inspectFuncPublish   func(version string)
 	afterPublishCounter  uint64
 	beforePublishCounter uint64
 	PublishMock          mPublisherMockPublish
@@ -80,6 +81,17 @@ func (mmPublish *mPublisherMockPublish) Expect(version string) *mPublisherMockPu
 	return mmPublish
 }
 
+// Inspect accepts an inspector function that has same arguments as the Publisher.Publish
+func (mmPublish *mPublisherMockPublish) Inspect(f func(version string)) *mPublisherMockPublish {
+	if mmPublish.mock.inspectFuncPublish != nil {
+		mmPublish.mock.t.Fatalf("Inspect function is already set for PublisherMock.Publish")
+	}
+
+	mmPublish.mock.inspectFuncPublish = f
+
+	return mmPublish
+}
+
 // Return sets up results that will be returned by Publisher.Publish
 func (mmPublish *mPublisherMockPublish) Return(err error) *PublisherMock {
 	if mmPublish.mock.funcPublish != nil {
@@ -132,6 +144,10 @@ func (e *PublisherMockPublishExpectation) Then(err error) *PublisherMock {
 func (mmPublish *PublisherMock) Publish(version string) (err error) {
 	mm_atomic.AddUint64(&mmPublish.beforePublishCounter, 1)
 	defer mm_atomic.AddUint64(&mmPublish.afterPublishCounter, 1)
+
+	if mmPublish.inspectFuncPublish != nil {
+		mmPublish.inspectFuncPublish(version)
+	}
 
 	params := &PublisherMockPublishParams{version}
 

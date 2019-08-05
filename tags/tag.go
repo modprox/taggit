@@ -5,7 +5,7 @@ import (
 	"regexp"
 	"strconv"
 
-	"go.gophers.dev/pkgs/regexplus"
+	"gophers.dev/pkgs/regexplus"
 )
 
 var (
