@@ -8,7 +8,7 @@ import (
 	"time"
 	mm_time "time"
 
-	"github.com/gojuno/minimock"
+	"github.com/gojuno/minimock/v3"
 )
 
 // CmdMock implements Cmd
@@ -152,15 +152,15 @@ func (mmRun *CmdMock) Run(args []string, timeout time.Duration) (s1 string, err 
 		mmRun.inspectFuncRun(args, timeout)
 	}
 
-	params := &CmdMockRunParams{args, timeout}
+	mm_params := &CmdMockRunParams{args, timeout}
 
 	// Record call args
 	mmRun.RunMock.mutex.Lock()
-	mmRun.RunMock.callArgs = append(mmRun.RunMock.callArgs, params)
+	mmRun.RunMock.callArgs = append(mmRun.RunMock.callArgs, mm_params)
 	mmRun.RunMock.mutex.Unlock()
 
 	for _, e := range mmRun.RunMock.expectations {
-		if minimock.Equal(e.params, params) {
+		if minimock.Equal(e.params, mm_params) {
 			mm_atomic.AddUint64(&e.Counter, 1)
 			return e.results.s1, e.results.err
 		}
@@ -168,17 +168,17 @@ func (mmRun *CmdMock) Run(args []string, timeout time.Duration) (s1 string, err 
 
 	if mmRun.RunMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmRun.RunMock.defaultExpectation.Counter, 1)
-		want := mmRun.RunMock.defaultExpectation.params
-		got := CmdMockRunParams{args, timeout}
-		if want != nil && !minimock.Equal(*want, got) {
-			mmRun.t.Errorf("CmdMock.Run got unexpected parameters, want: %#v, got: %#v%s\n", *want, got, minimock.Diff(*want, got))
+		mm_want := mmRun.RunMock.defaultExpectation.params
+		mm_got := CmdMockRunParams{args, timeout}
+		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
+			mmRun.t.Errorf("CmdMock.Run got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
 
-		results := mmRun.RunMock.defaultExpectation.results
-		if results == nil {
+		mm_results := mmRun.RunMock.defaultExpectation.results
+		if mm_results == nil {
 			mmRun.t.Fatal("No results are set for the CmdMock.Run")
 		}
-		return (*results).s1, (*results).err
+		return (*mm_results).s1, (*mm_results).err
 	}
 	if mmRun.funcRun != nil {
 		return mmRun.funcRun(args, timeout)

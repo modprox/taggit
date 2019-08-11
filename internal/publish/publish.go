@@ -12,7 +12,7 @@ const (
 	modproxNewAPI = "/v1/registry/sources/new"
 )
 
-//go:generate go run github.com/gojuno/minimock/cmd/minimock -g -i Publisher
+//go:generate go run github.com/gojuno/minimock/v3/cmd/minimock -g -i Publisher
 
 type Publisher interface {
 	Publish(version string) error

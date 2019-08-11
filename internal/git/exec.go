@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-//go:generate go run github.com/gojuno/minimock/cmd/minimock -g -i Cmd -s _mock.go
+//go:generate go run github.com/gojuno/minimock/v3/cmd/minimock -g -i Cmd -s _mock.go
 
 // An Cmd executes git commands.
 type Cmd interface {
