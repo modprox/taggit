@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"oss.indeed.com/go/taggit/tags"
+	"gophers.dev/pkgs/semantic"
 )
 
 const sampleTags = `
@@ -32,29 +32,29 @@ func Test_Groups_Parse(t *testing.T) {
 	require.NoError(t, err)
 
 	exp := Groups{
-		tags.New(0, 0, 0): {
-			tags.New(0, 0, 0),
+		semantic.New(0, 0, 0): {
+			semantic.New(0, 0, 0),
 		},
-		tags.New(0, 0, 1): {
-			tags.New(0, 0, 1),
-			tags.New2(0, 0, 1, "alpha2"),
-			tags.New2(0, 0, 1, "alpha"),
+		semantic.New(0, 0, 1): {
+			semantic.New(0, 0, 1),
+			semantic.New2(0, 0, 1, "alpha2"),
+			semantic.New2(0, 0, 1, "alpha"),
 		},
-		tags.New(0, 0, 5): {
-			tags.New(0, 0, 5),
+		semantic.New(0, 0, 5): {
+			semantic.New(0, 0, 5),
 		},
-		tags.New(0, 0, 6): {
-			tags.New(0, 0, 6),
+		semantic.New(0, 0, 6): {
+			semantic.New(0, 0, 6),
 		},
-		tags.New(1, 0, 0): {
-			tags.New(1, 0, 0),
-			tags.New2(1, 0, 0, "rc1"),
+		semantic.New(1, 0, 0): {
+			semantic.New(1, 0, 0),
+			semantic.New2(1, 0, 0, "rc1"),
 		},
-		tags.New(1, 1, 0): {
-			tags.New(1, 1, 0),
+		semantic.New(1, 1, 0): {
+			semantic.New(1, 1, 0),
 		},
-		tags.New(1, 1, 1): {
-			tags.New(1, 1, 1),
+		semantic.New(1, 1, 1): {
+			semantic.New(1, 1, 1),
 		},
 	}
 
@@ -97,13 +97,13 @@ func Test_Groups_Bases(t *testing.T) {
 	require.NoError(t, err)
 
 	bases := groups.Bases()
-	require.Equal(t, []tags.Tag{
-		tags.New(0, 0, 0),
-		tags.New(0, 0, 1),
-		tags.New(0, 0, 5),
-		tags.New(0, 0, 6),
-		tags.New(1, 0, 0),
-		tags.New(1, 1, 0),
-		tags.New(1, 1, 1),
+	require.Equal(t, []semantic.Tag{
+		semantic.New(0, 0, 0),
+		semantic.New(0, 0, 1),
+		semantic.New(0, 0, 5),
+		semantic.New(0, 0, 6),
+		semantic.New(1, 0, 0),
+		semantic.New(1, 1, 0),
+		semantic.New(1, 1, 1),
 	}, bases)
 }

@@ -6,9 +6,10 @@ import (
 	"fmt"
 	"io"
 
+	"gophers.dev/pkgs/semantic"
+
 	"oss.indeed.com/go/taggit/internal/git"
 	"oss.indeed.com/go/taggit/internal/publish"
-	"oss.indeed.com/go/taggit/tags"
 )
 
 type Tool interface {
@@ -79,7 +80,7 @@ func (t *tool) Zero(repoTags Groups) error {
 		return errors.New("tags already exist")
 	}
 
-	if err := git.CreateTag(t.gitCmd, tags.New(
+	if err := git.CreateTag(t.gitCmd, semantic.New(
 		0, 0, 0,
 	)); err != nil {
 		msg := "failed to create tag: " + err.Error()
@@ -115,7 +116,7 @@ func (t *tool) Patch(repoTags Groups, ext string) error {
 		patch++
 	}
 
-	newTag := tags.New2(
+	newTag := semantic.New2(
 		latest.Major,
 		latest.Minor,
 		patch,
@@ -161,7 +162,7 @@ func (t *tool) Minor(repoTags Groups, ext string) error {
 		patch = 0
 	}
 
-	newTag := tags.New2(
+	newTag := semantic.New2(
 		latest.Major,
 		minor,
 		patch,
@@ -209,7 +210,7 @@ func (t *tool) Major(repoTags Groups, ext string) error {
 		patch = 0
 	}
 
-	newTag := tags.New2(
+	newTag := semantic.New2(
 		major,
 		minor,
 		patch,
