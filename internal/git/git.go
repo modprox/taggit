@@ -6,7 +6,7 @@ import (
 
 	"github.com/pkg/errors"
 
-	"oss.indeed.com/go/taggit/tags"
+	"gophers.dev/pkgs/semantic"
 )
 
 // newest version to oldest version
@@ -18,7 +18,7 @@ func ListTags(cmd Cmd) (string, error) {
 	return output, nil
 }
 
-func CreateTag(cmd Cmd, tag tags.Tag) error {
+func CreateTag(cmd Cmd, tag semantic.Tag) error {
 	fmt.Println("taggit: creating tag:", tag)
 
 	if _, err := cmd.Run([]string{"tag", tag.String()}, 3*time.Second); err != nil {

@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"oss.indeed.com/go/taggit/tags"
+	"gophers.dev/pkgs/semantic"
 )
 
 const (
@@ -68,6 +68,6 @@ func Test_CreateTag(t *testing.T) {
 		[]string{"push", "origin", "v2.3.4"}, timeout1M,
 	).Then("", nil)
 
-	err := CreateTag(cmd, tags.New(2, 3, 4))
+	err := CreateTag(cmd, semantic.New(2, 3, 4))
 	require.NoError(t, err)
 }
