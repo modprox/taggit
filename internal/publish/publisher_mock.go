@@ -8,14 +8,15 @@ import (
 	mm_time "time"
 
 	"github.com/gojuno/minimock/v3"
+	"gophers.dev/pkgs/semantic"
 )
 
 // PublisherMock implements Publisher
 type PublisherMock struct {
 	t minimock.Tester
 
-	funcPublish          func(version string) (err error)
-	inspectFuncPublish   func(version string)
+	funcPublish          func(t1 semantic.Tag) (err error)
+	inspectFuncPublish   func(t1 semantic.Tag)
 	afterPublishCounter  uint64
 	beforePublishCounter uint64
 	PublishMock          mPublisherMockPublish
@@ -53,7 +54,7 @@ type PublisherMockPublishExpectation struct {
 
 // PublisherMockPublishParams contains parameters of the Publisher.Publish
 type PublisherMockPublishParams struct {
-	version string
+	t1 semantic.Tag
 }
 
 // PublisherMockPublishResults contains results of the Publisher.Publish
@@ -62,7 +63,7 @@ type PublisherMockPublishResults struct {
 }
 
 // Expect sets up expected params for Publisher.Publish
-func (mmPublish *mPublisherMockPublish) Expect(version string) *mPublisherMockPublish {
+func (mmPublish *mPublisherMockPublish) Expect(t1 semantic.Tag) *mPublisherMockPublish {
 	if mmPublish.mock.funcPublish != nil {
 		mmPublish.mock.t.Fatalf("PublisherMock.Publish mock is already set by Set")
 	}
@@ -71,7 +72,7 @@ func (mmPublish *mPublisherMockPublish) Expect(version string) *mPublisherMockPu
 		mmPublish.defaultExpectation = &PublisherMockPublishExpectation{}
 	}
 
-	mmPublish.defaultExpectation.params = &PublisherMockPublishParams{version}
+	mmPublish.defaultExpectation.params = &PublisherMockPublishParams{t1}
 	for _, e := range mmPublish.expectations {
 		if minimock.Equal(e.params, mmPublish.defaultExpectation.params) {
 			mmPublish.mock.t.Fatalf("Expectation set by When has same params: %#v", *mmPublish.defaultExpectation.params)
@@ -82,7 +83,7 @@ func (mmPublish *mPublisherMockPublish) Expect(version string) *mPublisherMockPu
 }
 
 // Inspect accepts an inspector function that has same arguments as the Publisher.Publish
-func (mmPublish *mPublisherMockPublish) Inspect(f func(version string)) *mPublisherMockPublish {
+func (mmPublish *mPublisherMockPublish) Inspect(f func(t1 semantic.Tag)) *mPublisherMockPublish {
 	if mmPublish.mock.inspectFuncPublish != nil {
 		mmPublish.mock.t.Fatalf("Inspect function is already set for PublisherMock.Publish")
 	}
@@ -106,7 +107,7 @@ func (mmPublish *mPublisherMockPublish) Return(err error) *PublisherMock {
 }
 
 //Set uses given function f to mock the Publisher.Publish method
-func (mmPublish *mPublisherMockPublish) Set(f func(version string) (err error)) *PublisherMock {
+func (mmPublish *mPublisherMockPublish) Set(f func(t1 semantic.Tag) (err error)) *PublisherMock {
 	if mmPublish.defaultExpectation != nil {
 		mmPublish.mock.t.Fatalf("Default expectation is already set for the Publisher.Publish method")
 	}
@@ -121,14 +122,14 @@ func (mmPublish *mPublisherMockPublish) Set(f func(version string) (err error)) 
 
 // When sets expectation for the Publisher.Publish which will trigger the result defined by the following
 // Then helper
-func (mmPublish *mPublisherMockPublish) When(version string) *PublisherMockPublishExpectation {
+func (mmPublish *mPublisherMockPublish) When(t1 semantic.Tag) *PublisherMockPublishExpectation {
 	if mmPublish.mock.funcPublish != nil {
 		mmPublish.mock.t.Fatalf("PublisherMock.Publish mock is already set by Set")
 	}
 
 	expectation := &PublisherMockPublishExpectation{
 		mock:   mmPublish.mock,
-		params: &PublisherMockPublishParams{version},
+		params: &PublisherMockPublishParams{t1},
 	}
 	mmPublish.expectations = append(mmPublish.expectations, expectation)
 	return expectation
@@ -141,15 +142,15 @@ func (e *PublisherMockPublishExpectation) Then(err error) *PublisherMock {
 }
 
 // Publish implements Publisher
-func (mmPublish *PublisherMock) Publish(version string) (err error) {
+func (mmPublish *PublisherMock) Publish(t1 semantic.Tag) (err error) {
 	mm_atomic.AddUint64(&mmPublish.beforePublishCounter, 1)
 	defer mm_atomic.AddUint64(&mmPublish.afterPublishCounter, 1)
 
 	if mmPublish.inspectFuncPublish != nil {
-		mmPublish.inspectFuncPublish(version)
+		mmPublish.inspectFuncPublish(t1)
 	}
 
-	mm_params := &PublisherMockPublishParams{version}
+	mm_params := &PublisherMockPublishParams{t1}
 
 	// Record call args
 	mmPublish.PublishMock.mutex.Lock()
@@ -166,7 +167,7 @@ func (mmPublish *PublisherMock) Publish(version string) (err error) {
 	if mmPublish.PublishMock.defaultExpectation != nil {
 		mm_atomic.AddUint64(&mmPublish.PublishMock.defaultExpectation.Counter, 1)
 		mm_want := mmPublish.PublishMock.defaultExpectation.params
-		mm_got := PublisherMockPublishParams{version}
+		mm_got := PublisherMockPublishParams{t1}
 		if mm_want != nil && !minimock.Equal(*mm_want, mm_got) {
 			mmPublish.t.Errorf("PublisherMock.Publish got unexpected parameters, want: %#v, got: %#v%s\n", *mm_want, mm_got, minimock.Diff(*mm_want, mm_got))
 		}
@@ -178,9 +179,9 @@ func (mmPublish *PublisherMock) Publish(version string) (err error) {
 		return (*mm_results).err
 	}
 	if mmPublish.funcPublish != nil {
-		return mmPublish.funcPublish(version)
+		return mmPublish.funcPublish(t1)
 	}
-	mmPublish.t.Fatalf("Unexpected call to PublisherMock.Publish. %v", version)
+	mmPublish.t.Fatalf("Unexpected call to PublisherMock.Publish. %v", t1)
 	return
 }
 
