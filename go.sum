@@ -95,6 +95,8 @@ gophers.dev/pkgs/regexplus v0.2.0/go.mod h1:K4ctjcxPeUcN0wpFcQUavX4jygQC8pMEBLnE
 gophers.dev/pkgs/repeat v0.1.1/go.mod h1:3aJovSU4uZ2GyBTpYPZtEboNxq7jP+rA2kld3CV6qjY=
 gophers.dev/pkgs/semantic v0.1.0 h1:TRpY1ua9krYEVOW8gWX2sF8sw0+0g6QzZO21GFAjccE=
 gophers.dev/pkgs/semantic v0.1.0/go.mod h1:rFj7GI/UPjOhwrI9rexsuN8hcuIyJzT35TJclczHMsk=
+gophers.dev/pkgs/semantic v1.0.0 h1:Up1OUssRcTJ7sxKeaZpBdxjeEBrOxmQbMEnSfa+dl8c=
+gophers.dev/pkgs/semantic v1.0.0/go.mod h1:GBi0O7lRz35e8C+uBfgeXrigjNOItVz/N2nD6laCw/w=
 gopkg.in/alecthomas/kingpin.v2 v2.2.6/go.mod h1:FMv+mEhP44yOT+4EoQTLFTRgOQ1FBLkstjWtayDeSgw=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405/go.mod h1:Co6ibVJAznAaIkqp8huTwlJQCZ016jof/cbN4VW5Yz0=
