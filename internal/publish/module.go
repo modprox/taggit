@@ -7,7 +7,11 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+
+	"gophers.dev/pkgs/ignore"
 )
+
+//go:generate go run github.com/gojuno/minimock/v3/cmd/minimock -g -i ModFinder -s _mock.go
 
 type ModFinder interface {
 	FindModule(root string) (string, error)
@@ -58,7 +62,7 @@ func (m *modFinder) readModFile(filename string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	defer f.Close()
+	defer ignore.Close(f)
 
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
