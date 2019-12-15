@@ -75,9 +75,7 @@ func (pc *patchCmd) execute(ext tags.Extensions) error {
 	}
 
 	latest := tax.Latest()
-	next := tags.IncPatch(latest)
-	next.PreRelease = ext.PreRelease
-	next.BuildMetadata = ext.BuildMetadta
+	next := tags.IncPatch(latest, ext)
 
 	if err := pc.tagCreator.CreateTag(next); err != nil {
 		return err
