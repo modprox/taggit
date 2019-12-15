@@ -75,9 +75,7 @@ func (mc *minorCmd) execute(ext tags.Extensions) error {
 	}
 
 	latest := groups.Latest()
-	next := tags.IncMinor(latest)
-	next.PreRelease = ext.PreRelease
-	next.BuildMetadata = ext.BuildMetadta
+	next := tags.IncMinor(latest, ext)
 
 	if err := mc.tagCreator.CreateTag(next); err != nil {
 		return err

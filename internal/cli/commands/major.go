@@ -75,9 +75,7 @@ func (mc *majorCmd) execute(ext tags.Extensions) error {
 	}
 
 	latest := groups.Latest()
-	next := tags.IncMajor(latest)
-	next.PreRelease = ext.PreRelease
-	next.BuildMetadata = ext.BuildMetadta
+	next := tags.IncMajor(latest, ext)
 
 	if err := mc.tagCreator.CreateTag(next); err != nil {
 		return err
