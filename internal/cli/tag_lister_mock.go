@@ -14,12 +14,6 @@ import (
 type TagListerMock struct {
 	t minimock.Tester
 
-	funcListBranchTags          func() (t1 tags.Taxonomy, err error)
-	inspectFuncListBranchTags   func()
-	afterListBranchTagsCounter  uint64
-	beforeListBranchTagsCounter uint64
-	ListBranchTagsMock          mTagListerMockListBranchTags
-
 	funcListRepoTags          func() (t1 tags.Taxonomy, err error)
 	inspectFuncListRepoTags   func()
 	afterListRepoTagsCounter  uint64
@@ -34,155 +28,9 @@ func NewTagListerMock(t minimock.Tester) *TagListerMock {
 		controller.RegisterMocker(m)
 	}
 
-	m.ListBranchTagsMock = mTagListerMockListBranchTags{mock: m}
-
 	m.ListRepoTagsMock = mTagListerMockListRepoTags{mock: m}
 
 	return m
-}
-
-type mTagListerMockListBranchTags struct {
-	mock               *TagListerMock
-	defaultExpectation *TagListerMockListBranchTagsExpectation
-	expectations       []*TagListerMockListBranchTagsExpectation
-}
-
-// TagListerMockListBranchTagsExpectation specifies expectation struct of the TagLister.ListBranchTags
-type TagListerMockListBranchTagsExpectation struct {
-	mock *TagListerMock
-
-	results *TagListerMockListBranchTagsResults
-	Counter uint64
-}
-
-// TagListerMockListBranchTagsResults contains results of the TagLister.ListBranchTags
-type TagListerMockListBranchTagsResults struct {
-	t1  tags.Taxonomy
-	err error
-}
-
-// Expect sets up expected params for TagLister.ListBranchTags
-func (mmListBranchTags *mTagListerMockListBranchTags) Expect() *mTagListerMockListBranchTags {
-	if mmListBranchTags.mock.funcListBranchTags != nil {
-		mmListBranchTags.mock.t.Fatalf("TagListerMock.ListBranchTags mock is already set by Set")
-	}
-
-	if mmListBranchTags.defaultExpectation == nil {
-		mmListBranchTags.defaultExpectation = &TagListerMockListBranchTagsExpectation{}
-	}
-
-	return mmListBranchTags
-}
-
-// Inspect accepts an inspector function that has same arguments as the TagLister.ListBranchTags
-func (mmListBranchTags *mTagListerMockListBranchTags) Inspect(f func()) *mTagListerMockListBranchTags {
-	if mmListBranchTags.mock.inspectFuncListBranchTags != nil {
-		mmListBranchTags.mock.t.Fatalf("Inspect function is already set for TagListerMock.ListBranchTags")
-	}
-
-	mmListBranchTags.mock.inspectFuncListBranchTags = f
-
-	return mmListBranchTags
-}
-
-// Return sets up results that will be returned by TagLister.ListBranchTags
-func (mmListBranchTags *mTagListerMockListBranchTags) Return(t1 tags.Taxonomy, err error) *TagListerMock {
-	if mmListBranchTags.mock.funcListBranchTags != nil {
-		mmListBranchTags.mock.t.Fatalf("TagListerMock.ListBranchTags mock is already set by Set")
-	}
-
-	if mmListBranchTags.defaultExpectation == nil {
-		mmListBranchTags.defaultExpectation = &TagListerMockListBranchTagsExpectation{mock: mmListBranchTags.mock}
-	}
-	mmListBranchTags.defaultExpectation.results = &TagListerMockListBranchTagsResults{t1, err}
-	return mmListBranchTags.mock
-}
-
-//Set uses given function f to mock the TagLister.ListBranchTags method
-func (mmListBranchTags *mTagListerMockListBranchTags) Set(f func() (t1 tags.Taxonomy, err error)) *TagListerMock {
-	if mmListBranchTags.defaultExpectation != nil {
-		mmListBranchTags.mock.t.Fatalf("Default expectation is already set for the TagLister.ListBranchTags method")
-	}
-
-	if len(mmListBranchTags.expectations) > 0 {
-		mmListBranchTags.mock.t.Fatalf("Some expectations are already set for the TagLister.ListBranchTags method")
-	}
-
-	mmListBranchTags.mock.funcListBranchTags = f
-	return mmListBranchTags.mock
-}
-
-// ListBranchTags implements TagLister
-func (mmListBranchTags *TagListerMock) ListBranchTags() (t1 tags.Taxonomy, err error) {
-	mm_atomic.AddUint64(&mmListBranchTags.beforeListBranchTagsCounter, 1)
-	defer mm_atomic.AddUint64(&mmListBranchTags.afterListBranchTagsCounter, 1)
-
-	if mmListBranchTags.inspectFuncListBranchTags != nil {
-		mmListBranchTags.inspectFuncListBranchTags()
-	}
-
-	if mmListBranchTags.ListBranchTagsMock.defaultExpectation != nil {
-		mm_atomic.AddUint64(&mmListBranchTags.ListBranchTagsMock.defaultExpectation.Counter, 1)
-
-		mm_results := mmListBranchTags.ListBranchTagsMock.defaultExpectation.results
-		if mm_results == nil {
-			mmListBranchTags.t.Fatal("No results are set for the TagListerMock.ListBranchTags")
-		}
-		return (*mm_results).t1, (*mm_results).err
-	}
-	if mmListBranchTags.funcListBranchTags != nil {
-		return mmListBranchTags.funcListBranchTags()
-	}
-	mmListBranchTags.t.Fatalf("Unexpected call to TagListerMock.ListBranchTags.")
-	return
-}
-
-// ListBranchTagsAfterCounter returns a count of finished TagListerMock.ListBranchTags invocations
-func (mmListBranchTags *TagListerMock) ListBranchTagsAfterCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmListBranchTags.afterListBranchTagsCounter)
-}
-
-// ListBranchTagsBeforeCounter returns a count of TagListerMock.ListBranchTags invocations
-func (mmListBranchTags *TagListerMock) ListBranchTagsBeforeCounter() uint64 {
-	return mm_atomic.LoadUint64(&mmListBranchTags.beforeListBranchTagsCounter)
-}
-
-// MinimockListBranchTagsDone returns true if the count of the ListBranchTags invocations corresponds
-// the number of defined expectations
-func (m *TagListerMock) MinimockListBranchTagsDone() bool {
-	for _, e := range m.ListBranchTagsMock.expectations {
-		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			return false
-		}
-	}
-
-	// if default expectation was set then invocations count should be greater than zero
-	if m.ListBranchTagsMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterListBranchTagsCounter) < 1 {
-		return false
-	}
-	// if func was set then invocations count should be greater than zero
-	if m.funcListBranchTags != nil && mm_atomic.LoadUint64(&m.afterListBranchTagsCounter) < 1 {
-		return false
-	}
-	return true
-}
-
-// MinimockListBranchTagsInspect logs each unmet expectation
-func (m *TagListerMock) MinimockListBranchTagsInspect() {
-	for _, e := range m.ListBranchTagsMock.expectations {
-		if mm_atomic.LoadUint64(&e.Counter) < 1 {
-			m.t.Error("Expected call to TagListerMock.ListBranchTags")
-		}
-	}
-
-	// if default expectation was set then invocations count should be greater than zero
-	if m.ListBranchTagsMock.defaultExpectation != nil && mm_atomic.LoadUint64(&m.afterListBranchTagsCounter) < 1 {
-		m.t.Error("Expected call to TagListerMock.ListBranchTags")
-	}
-	// if func was set then invocations count should be greater than zero
-	if m.funcListBranchTags != nil && mm_atomic.LoadUint64(&m.afterListBranchTagsCounter) < 1 {
-		m.t.Error("Expected call to TagListerMock.ListBranchTags")
-	}
 }
 
 type mTagListerMockListRepoTags struct {
@@ -332,8 +180,6 @@ func (m *TagListerMock) MinimockListRepoTagsInspect() {
 // MinimockFinish checks that all mocked methods have been called the expected number of times
 func (m *TagListerMock) MinimockFinish() {
 	if !m.minimockDone() {
-		m.MinimockListBranchTagsInspect()
-
 		m.MinimockListRepoTagsInspect()
 		m.t.FailNow()
 	}
@@ -358,6 +204,5 @@ func (m *TagListerMock) MinimockWait(timeout mm_time.Duration) {
 func (m *TagListerMock) minimockDone() bool {
 	done := true
 	return done &&
-		m.MinimockListBranchTagsDone() &&
 		m.MinimockListRepoTagsDone()
 }
