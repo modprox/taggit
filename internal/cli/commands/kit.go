@@ -10,11 +10,13 @@ func NewKit(
 	writer output.Writer,
 	tagLister cli.TagLister,
 	tagCreator cli.TagCreator,
+	tagPusher cli.TagPusher,
 	tagPublisher publish.Publisher) *Kit {
 	return &Kit{
 		writer:       writer,
 		tagLister:    tagLister,
 		tagCreator:   tagCreator,
+		tagPusher:    tagPusher,
 		tagPublisher: tagPublisher,
 	}
 }
@@ -24,5 +26,6 @@ type Kit struct {
 	writer       output.Writer
 	tagLister    cli.TagLister
 	tagCreator   cli.TagCreator
+	tagPusher    cli.TagPusher
 	tagPublisher publish.Publisher
 }

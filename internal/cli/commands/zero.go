@@ -5,9 +5,7 @@ import (
 	"flag"
 
 	"github.com/google/subcommands"
-
 	"gophers.dev/pkgs/semantic"
-
 	"oss.indeed.com/go/taggit/internal/cli"
 	"oss.indeed.com/go/taggit/internal/cli/output"
 	"oss.indeed.com/go/taggit/internal/publish"
@@ -25,6 +23,7 @@ func NewZeroCmd(kit *Kit) subcommands.Command {
 		writer:       kit.writer,
 		tagLister:    kit.tagLister,
 		tagCreator:   kit.tagCreator,
+		tagPusher:    kit.tagPusher,
 		tagPublisher: kit.tagPublisher,
 	}
 }
@@ -33,6 +32,7 @@ type zeroCmd struct {
 	writer       output.Writer
 	tagLister    cli.TagLister
 	tagCreator   cli.TagCreator
+	tagPusher    cli.TagPusher
 	tagPublisher publish.Publisher
 }
 
@@ -76,6 +76,10 @@ func (zc *zeroCmd) execute() error {
 	}
 
 	if err := zc.tagCreator.CreateTag(zero); err != nil {
+		return err
+	}
+
+	if err := zc.tagPusher.PushTag(zero); err != nil {
 		return err
 	}
 

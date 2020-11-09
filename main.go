@@ -6,22 +6,34 @@ import (
 	"flag"
 	"os"
 
+	git5 "github.com/go-git/go-git/v5"
 	"github.com/google/subcommands"
 
 	"oss.indeed.com/go/taggit/internal/cli"
 	"oss.indeed.com/go/taggit/internal/cli/commands"
 	"oss.indeed.com/go/taggit/internal/cli/output"
-	"oss.indeed.com/go/taggit/internal/git"
 	"oss.indeed.com/go/taggit/internal/publish"
 )
 
 func main() {
 	writer := output.NewWriter(os.Stdout, os.Stderr)
-	gitCmd := git.New("git")
-	tagLister := cli.NewTagLister(gitCmd)
-	tagCreator := cli.NewTagCreator(gitCmd)
+
+	repository, err := git5.PlainOpen(".")
+	if err != nil {
+		panic(err)
+	}
+
+	tagLister := cli.NewTagLister(repository)
+	tagCreator := cli.NewTagCreator(repository)
+	tagPusher := cli.NewTagPusher(repository)
 	tagPublisher := publish.FromEnv(publish.RegistryEnv, writer)
-	kit := commands.NewKit(writer, tagLister, tagCreator, tagPublisher)
+	kit := commands.NewKit(
+		writer,
+		tagLister,
+		tagCreator,
+		tagPusher,
+		tagPublisher,
+	)
 
 	listCmd := commands.NewListCmd(kit)
 	zeroCmd := commands.NewZeroCmd(kit)

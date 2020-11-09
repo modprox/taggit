@@ -18,9 +18,7 @@ func Test_MinorCmd_commandInfo(t *testing.T) {
 	mocks := newMocks(t)
 	defer mocks.assertions(t)
 
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
-
-	majorCmd := NewMinorCmd(kit)
+	majorCmd := NewMinorCmd(newKit(mocks))
 
 	name := majorCmd.Name()
 	r.Equal(minorCmdName, name)
@@ -49,10 +47,10 @@ func Test_MinorCmd_Execute_normal(t *testing.T) {
 		}, nil,
 	)
 	mocks.tagCreator.CreateTagMock.When(newTag).Then(nil)
+	mocks.tagPusher.PushTagMock.When(newTag).Then(nil)
 	mocks.tagPublisher.PublishMock.When(newTag).Then(nil)
 
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
-	minorCmd := NewMinorCmd(kit)
+	minorCmd := NewMinorCmd(newKit(mocks))
 
 	ctx := context.Background()
 	fs := flag.NewFlagSet("test", flag.PanicOnError)
@@ -79,8 +77,7 @@ taggit: failure: no previous tags
 		tags.Taxonomy(nil), nil, // no tags, no error
 	)
 
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
-	minorCmd := NewMinorCmd(kit)
+	minorCmd := NewMinorCmd(newKit(mocks))
 
 	ctx := context.Background()
 	fs := flag.NewFlagSet("test", flag.PanicOnError)
@@ -104,8 +101,7 @@ func Test_MinorCmd_Execute_listErr(t *testing.T) {
 		tags.Taxonomy(nil), errors.New("some git error"),
 	)
 
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
-	minorCmd := NewMinorCmd(kit)
+	minorCmd := NewMinorCmd(newKit(mocks))
 
 	ctx := context.Background()
 	fs := flag.NewFlagSet("test", flag.PanicOnError)
@@ -137,8 +133,7 @@ func Test_MinorCmd_Execute_creatorErr(t *testing.T) {
 		errors.New("some create error"),
 	)
 
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
-	minorCmd := NewMinorCmd(kit)
+	minorCmd := NewMinorCmd(newKit(mocks))
 
 	ctx := context.Background()
 	fs := flag.NewFlagSet("test", flag.PanicOnError)
@@ -163,17 +158,12 @@ func Test_MinorCmd_Execute_publishErr(t *testing.T) {
 			tags.NewTriple(1, 2, 3): {semantic.New(1, 2, 3)},
 		}, nil,
 	)
+	newTag := semantic.New(1, 3, 0)
+	mocks.tagCreator.CreateTagMock.Expect(newTag).Return(nil)
+	mocks.tagPusher.PushTagMock.Expect(newTag).Return(nil)
+	mocks.tagPublisher.PublishMock.Expect(newTag).Return(errors.New("some publish error"))
 
-	mocks.tagCreator.CreateTagMock.Expect(
-		semantic.New(1, 3, 0),
-	).Return(nil)
-
-	mocks.tagPublisher.PublishMock.Expect(
-		semantic.New(1, 3, 0),
-	).Return(errors.New("some publish error"))
-
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
-	minorCmd := NewMinorCmd(kit)
+	minorCmd := NewMinorCmd(newKit(mocks))
 
 	ctx := context.Background()
 	fs := flag.NewFlagSet("test", flag.PanicOnError)
