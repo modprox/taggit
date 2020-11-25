@@ -18,9 +18,7 @@ func Test_PatchCmd_commandInfo(t *testing.T) {
 	mocks := newMocks(t)
 	defer mocks.assertions(t)
 
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
-
-	patchCmd := NewPatchCmd(kit)
+	patchCmd := NewPatchCmd(newKit(mocks))
 
 	name := patchCmd.Name()
 	r.Equal(patchCmdName, name)
@@ -49,10 +47,9 @@ func Test_PatchCmd_Execute_normal(t *testing.T) {
 		}, nil,
 	)
 	mocks.tagCreator.CreateTagMock.When(newTag).Then(nil)
+	mocks.tagPusher.PushTagMock.When(newTag).Then(nil)
 	mocks.tagPublisher.PublishMock.When(newTag).Then(nil)
-
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
-	patchCmd := NewPatchCmd(kit)
+	patchCmd := NewPatchCmd(newKit(mocks))
 
 	ctx := context.Background()
 	fs := flag.NewFlagSet("test", flag.PanicOnError)
@@ -79,8 +76,7 @@ taggit: failure: no previous tags
 		tags.Taxonomy(nil), nil, // no tags, no error
 	)
 
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
-	patchCmd := NewPatchCmd(kit)
+	patchCmd := NewPatchCmd(newKit(mocks))
 
 	ctx := context.Background()
 	fs := flag.NewFlagSet("test", flag.PanicOnError)
@@ -104,8 +100,7 @@ func Test_PatchCmd_Execute_listErr(t *testing.T) {
 		tags.Taxonomy(nil), errors.New("some git error"),
 	)
 
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
-	patchCmd := NewPatchCmd(kit)
+	patchCmd := NewPatchCmd(newKit(mocks))
 
 	ctx := context.Background()
 	fs := flag.NewFlagSet("test", flag.PanicOnError)
@@ -137,8 +132,7 @@ func Test_PatchCmd_Execute_creatorErr(t *testing.T) {
 		errors.New("some create error"),
 	)
 
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
-	patchCmd := NewPatchCmd(kit)
+	patchCmd := NewPatchCmd(newKit(mocks))
 
 	ctx := context.Background()
 	fs := flag.NewFlagSet("test", flag.PanicOnError)
@@ -164,16 +158,12 @@ func Test_PatchCmd_Execute_publishErr(t *testing.T) {
 		}, nil,
 	)
 
-	mocks.tagCreator.CreateTagMock.Expect(
-		semantic.New(1, 2, 4),
-	).Return(nil)
+	newTag := semantic.New(1, 2, 4)
+	mocks.tagCreator.CreateTagMock.Expect(newTag).Return(nil)
+	mocks.tagPusher.PushTagMock.Expect(newTag).Return(nil)
+	mocks.tagPublisher.PublishMock.Expect(newTag).Return(errors.New("some publish error"))
 
-	mocks.tagPublisher.PublishMock.Expect(
-		semantic.New(1, 2, 4),
-	).Return(errors.New("some publish error"))
-
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
-	patchCmd := NewPatchCmd(kit)
+	patchCmd := NewPatchCmd(newKit(mocks))
 
 	ctx := context.Background()
 	fs := flag.NewFlagSet("test", flag.PanicOnError)

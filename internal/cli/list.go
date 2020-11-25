@@ -1,15 +1,10 @@
 package cli
 
 import (
-	"bufio"
-	"strings"
-	"time"
-
-	"github.com/pkg/errors"
-
+	git5 "github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 	"gophers.dev/pkgs/semantic"
 
-	"oss.indeed.com/go/taggit/internal/git"
 	"oss.indeed.com/go/taggit/internal/tags"
 )
 
@@ -22,47 +17,29 @@ type TagLister interface {
 	ListRepoTags() (tags.Taxonomy, error)
 }
 
-func NewTagLister(gitCmd git.Cmd) TagLister {
+func NewTagLister(r *git5.Repository) TagLister {
 	return &tagLister{
-		timeout: 3 * time.Second,
-		gitCmd:  gitCmd,
+		repository: r,
 	}
 }
 
 type tagLister struct {
-	timeout time.Duration
-	gitCmd  git.Cmd
+	repository *git5.Repository
 }
-
-var repoTagsArgs = []string{"tag", "--list"}
 
 func (tl *tagLister) ListRepoTags() (tags.Taxonomy, error) {
-	output, err := tl.gitCmd.Run(repoTagsArgs, tl.timeout)
+	iter, err := tl.repository.Tags()
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to list repo tags")
+		return nil, err
 	}
 
-	groups, err := parseTagList(output)
-	if err != nil {
-		return nil, errors.Wrap(err, "parse tags list")
-	}
-
-	return groups, nil
-}
-
-// Parse the output of `git tag --list` into a set of tags grouped
-// such that all extensions are associated with a core version.
-func parseTagList(s string) (tags.Taxonomy, error) {
 	groups := make(tags.Taxonomy)
-	scanner := bufio.NewScanner(strings.NewReader(s))
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if tag, ok := semantic.Parse(line); ok {
+	if err := iter.ForEach(func(ref *plumbing.Reference) error {
+		if tag, ok := semantic.Parse(ref.Name().Short()); ok {
 			groups.Add(tag)
 		}
-	}
-
-	if err := scanner.Err(); err != nil {
+		return nil
+	}); err != nil {
 		return nil, err
 	}
 

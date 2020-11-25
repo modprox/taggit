@@ -14,15 +14,17 @@ import (
 	"oss.indeed.com/go/taggit/internal/tags"
 )
 
+func newKit(mocks mocks) *Kit {
+	return NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPusher, mocks.tagPublisher)
+}
+
 func Test_ListCmd_commandInfo(t *testing.T) {
 	r := require.New(t)
 
 	mocks := newMocks(t)
 	defer mocks.assertions(t)
 
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
-
-	listCmd := NewListCmd(kit)
+	listCmd := NewListCmd(newKit(mocks))
 
 	name := listCmd.Name()
 	r.Equal(listCmdName, name)
@@ -45,8 +47,7 @@ func Test_ListCmd_Execute_noTags(t *testing.T) {
 		nil,
 	)
 
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
-	listCmd := NewListCmd(kit)
+	listCmd := NewListCmd(newKit(mocks))
 
 	ctx := context.Background()
 	fs := flag.NewFlagSet("test", flag.PanicOnError)
@@ -79,8 +80,7 @@ v0.2.0 |= v0.2.0-rc1 v0.2.0-r1+linux v0.2.0-r1+darwin
 		nil,
 	)
 
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
-	listCmd := NewListCmd(kit)
+	listCmd := NewListCmd(newKit(mocks))
 
 	ctx := context.Background()
 	fs := flag.NewFlagSet("test", flag.PanicOnError)
@@ -103,8 +103,7 @@ func Test_ListCmd_Execute_listErr(t *testing.T) {
 		nil, errors.New("some git error"),
 	)
 
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
-	listCmd := NewListCmd(kit)
+	listCmd := NewListCmd(newKit(mocks))
 
 	ctx := context.Background()
 	fs := flag.NewFlagSet("test", flag.PanicOnError)

@@ -5,7 +5,6 @@ import (
 	"flag"
 
 	"github.com/google/subcommands"
-
 	"oss.indeed.com/go/taggit/internal/cli"
 	"oss.indeed.com/go/taggit/internal/cli/output"
 	"oss.indeed.com/go/taggit/internal/publish"
@@ -23,6 +22,7 @@ func NewMajorCmd(kit *Kit) subcommands.Command {
 		writer:       kit.writer,
 		tagLister:    kit.tagLister,
 		tagCreator:   kit.tagCreator,
+		tagPusher:    kit.tagPusher,
 		tagPublisher: kit.tagPublisher,
 	}
 }
@@ -31,6 +31,7 @@ type majorCmd struct {
 	writer       output.Writer
 	tagLister    cli.TagLister
 	tagCreator   cli.TagCreator
+	tagPusher    cli.TagPusher
 	tagPublisher publish.Publisher
 }
 
@@ -78,6 +79,10 @@ func (mc *majorCmd) execute(ext tags.Extensions) error {
 	next := tags.IncMajor(latest, ext)
 
 	if err := mc.tagCreator.CreateTag(next); err != nil {
+		return err
+	}
+
+	if err := mc.tagPusher.PushTag(next); err != nil {
 		return err
 	}
 

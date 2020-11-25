@@ -16,6 +16,7 @@ type mocks struct {
 	writer       output.Writer
 	tagLister    *cli.TagListerMock
 	tagCreator   *cli.TagCreatorMock
+	tagPusher    *cli.TagPusherMock
 	tagPublisher *publish.PublisherMock
 }
 
@@ -31,6 +32,7 @@ func newMocks(t *testing.T) mocks {
 		writer:       output.NewWriter(&stdout, &stderr),
 		tagLister:    cli.NewTagListerMock(t),
 		tagCreator:   cli.NewTagCreatorMock(t),
+		tagPusher:    cli.NewTagPusherMock(t),
 		tagPublisher: publish.NewPublisherMock(t),
 	}
 }
@@ -38,16 +40,18 @@ func newMocks(t *testing.T) mocks {
 func (m mocks) assertions(t *testing.T) {
 	m.tagLister.MinimockFinish()
 	m.tagCreator.MinimockFinish()
+	m.tagPusher.MinimockFinish()
 	m.tagPublisher.MinimockFinish()
 }
 
 func Test_NewKit(t *testing.T) {
 	mocks := newMocks(t)
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
+	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPusher, mocks.tagPublisher)
 
 	r := require.New(t)
 	r.NotNil(t, kit.writer)
 	r.NotNil(t, kit.tagLister)
 	r.NotNil(t, kit.tagCreator)
+	r.NotNil(t, kit.tagPusher)
 	r.NotNil(t, kit.tagPublisher)
 }

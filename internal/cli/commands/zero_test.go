@@ -18,9 +18,7 @@ func Test_ZeroCmd_commandInfo(t *testing.T) {
 	mocks := newMocks(t)
 	defer mocks.assertions(t)
 
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
-
-	majorCmd := NewZeroCmd(kit)
+	majorCmd := NewZeroCmd(newKit(mocks))
 
 	name := majorCmd.Name()
 	r.Equal(zeroCmdName, name)
@@ -46,10 +44,10 @@ func Test_ZeroCmd_Execute_normal(t *testing.T) {
 		nil, nil, // no tags
 	)
 	mocks.tagCreator.CreateTagMock.When(zeroTag).Then(nil)
+	mocks.tagPusher.PushTagMock.When(zeroTag).Then(nil)
 	mocks.tagPublisher.PublishMock.When(zeroTag).Then(nil)
 
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
-	zeroCmd := NewZeroCmd(kit)
+	zeroCmd := NewZeroCmd(newKit(mocks))
 
 	ctx := context.Background()
 	fs := flag.NewFlagSet("test", flag.PanicOnError)
@@ -81,8 +79,7 @@ func Test_ZeroCmd_Execute_hasPrevious(t *testing.T) {
 	// mocks.tagCreator.CreateTagMock.When(zeroTag).Then(nil)
 	// mocks.tagPublisher.PublishMock.When(zeroTag).Then(nil)
 
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
-	zeroCmd := NewZeroCmd(kit)
+	zeroCmd := NewZeroCmd(newKit(mocks))
 
 	ctx := context.Background()
 	fs := flag.NewFlagSet("test", flag.PanicOnError)
@@ -107,8 +104,7 @@ func Test_ZeroCmd_Execute_listErr(t *testing.T) {
 		tags.Taxonomy(nil), errors.New("some git error"),
 	)
 
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
-	zeroCmd := NewZeroCmd(kit)
+	zeroCmd := NewZeroCmd(newKit(mocks))
 
 	ctx := context.Background()
 	fs := flag.NewFlagSet("test", flag.PanicOnError)
@@ -138,8 +134,7 @@ func Test_ZeroCmd_Execute_creatorErr(t *testing.T) {
 		errors.New("some create error"),
 	)
 
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
-	zeroCmd := NewZeroCmd(kit)
+	zeroCmd := NewZeroCmd(newKit(mocks))
 
 	ctx := context.Background()
 	fs := flag.NewFlagSet("test", flag.PanicOnError)
@@ -162,17 +157,12 @@ func Test_ZeroCmd_Execute_publishErr(t *testing.T) {
 	mocks.tagLister.ListRepoTagsMock.Expect().Return(
 		nil, nil,
 	)
+	newTag := semantic.New(0, 0, 0)
+	mocks.tagCreator.CreateTagMock.Expect(newTag).Return(nil)
+	mocks.tagPusher.PushTagMock.Expect(newTag).Return(nil)
+	mocks.tagPublisher.PublishMock.Expect(newTag).Return(errors.New("some publish error"))
 
-	mocks.tagCreator.CreateTagMock.Expect(
-		semantic.New(0, 0, 0),
-	).Return(nil)
-
-	mocks.tagPublisher.PublishMock.Expect(
-		semantic.New(0, 0, 0),
-	).Return(errors.New("some publish error"))
-
-	kit := NewKit(mocks.writer, mocks.tagLister, mocks.tagCreator, mocks.tagPublisher)
-	zeroCmd := NewZeroCmd(kit)
+	zeroCmd := NewZeroCmd(newKit(mocks))
 
 	ctx := context.Background()
 	fs := flag.NewFlagSet("test", flag.PanicOnError)
