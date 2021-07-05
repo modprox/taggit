@@ -16,7 +16,7 @@ Command `taggit` is a git repository workflow tool for publishing semver release
 The `oss.indeed.com/go/taggit` CLI tool can be installed by running:
 
 ```bash
-$ go get oss.indeed.com/go/taggit
+$ go install oss.indeed.com/go/taggit@latest
 ```
 
 Example usage:
